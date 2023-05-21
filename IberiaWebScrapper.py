@@ -23,7 +23,7 @@ class IberiaWebScrapper(AirlineWebScrapper):
         flight_hotel_round_date = self.driver.find_element(by='xpath', value='//input[@name="flight_hotel_round_date"]')
         flight_return_date = self.driver.find_element(by='xpath', value='//input[@name="flight_return_date"]')
         flight_origin.clear()
-        flight_origin.send_keys("Madrid (MAD)")
+        flight_origin.send_keys(from_city)
         time.sleep(4.324)
         flight_origin.send_keys(Keys.ENTER)
         flight_destiny.send_keys(to_city)
@@ -87,16 +87,12 @@ class IberiaWebScrapper(AirlineWebScrapper):
             span_price = div_flight.find_all('span', {'class': 'ib-box-mini-fare__box-price'})[0]
             span_hour = div_flight.find_all('span', {'class': 'ib-info-journey__time'})[0]
             span_duration = div_flight.find_all('span', {'class': 'ib-info-journey__detail'})[1]
-
             # Remove IATA from hour span
             span_hour.find_all('span', {'class': 'ib-info-journey--iata'})[0].decompose()
-
             price = span_price.get_text()
             hour = "".join(span_hour.get_text().split())
             duration = span_duration.get_text()
-
             flight = Flight(from_city, to_city, date, hour, duration, price)
-
             return flight
 
         except IndexError:

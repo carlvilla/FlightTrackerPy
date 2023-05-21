@@ -17,7 +17,9 @@ class Flight:
         return self.price
 
     def remove_euro(self, text):
-        return float(text.replace('€', '').replace(' ', '').replace('.', ''))
+        price_without_euro_symbol = text.replace('€', '')
+        maketrans = price_without_euro_symbol.maketrans
+        return float(price_without_euro_symbol.translate(maketrans(',.', '.,', ' ')).replace(',', ", "))
 
     def __str__(self) -> str:
         return "--- FLIGHT INFORMATION ---\n From: " + self.from_city + "\n To: " + self.to_city + "\n Departing date: " \
