@@ -1,19 +1,22 @@
 import traceback
 import time
 import datetime
+import importlib
 
 from EmailSender import EmailSender
 from IberiaWebScrapper import IberiaWebScrapper
 from RyanairWebScrapper import RyanairWebScrapper
+from SkyscannerWebScrapper import SkyscannerWebScrapper
 
-max_price = 70
+max_price = 100
 from_city = "Madrid"
-min_departing_hour = "17:00"
-min_returning_hour = "20:00"
+min_departing_hour = "16:00"
+min_returning_hour = "18:00"
 email = "carlosvillablanco@gmail.com"
 email_sender = EmailSender(email)
 num_weeks_to_analyse = 10
 destinations = ["Londres", "París", "Amsterdam", "Berlín", "Roma", "Praga", "Atenas", "Viena", "Lisboa", "Dublín", "Budapest", "Estocolmo", "Varsovia", "Copenhague", "Helsinki", "Bruselas", "Oslo", "Zurich", "Milán", "Múnich", "Estambul", "Frankfurt", "Bucarest", "Belgrado", "Sofía", "Lisboa", "Oporto", "Ginebra", "Venecia", "Niza", "Marsella", "Zagreb", "Lviv", "Dubrovnik", "Split", "Ámsterdam", "Birmingham", "Boloña", "Bordeaux", "Breslavia", "Bristol", "Budapest", "Catania", "Colonia", "Corfu", "Córcega", "Cork", "Cracovia", "Doha", "Dortmund", "Dresden", "Dusseldorf", "Edimburgo", "Eindhoven", "Faro", "Florencia", "Gdansk", "Glasgow", "Gotemburgo", "Hamburgo", "Hanóver", "Helsinki", "Ibiza", "Innsbruck", "Jersey", "Kiev", "La Palma", "Lanzarote", "La Valeta", "Liubliana", "Luxemburgo", "Málaga", "Manchester", "Menorca", "Mikonos", "Munich", "Nápoles", "Niza", "Oporto", "Palma de Mallorca", "Pisa", "Podgorica", "Reikiavik", "Riga", "Rotterdam", "Salónica", "San Petersburgo", "Santorini", "Sarajevo", "Sibiu", "Sofía", "Split", "Tallin", "Tánger", "Tenerife", "Tirana", "Turín", "Valencia", "Varsovia", "Varna", "Venecia", "Verona", "Viena", "Vigo", "Zagreb", "Zante", "Zúrich"]
+websites_scrappers = ["IberiaWebScrapper", "RyanairWebScrapper"]
 
 def main():
     # Get dates next weekends
@@ -26,23 +29,25 @@ def main():
         time.sleep(18000)
 
 def scrape_flights(weekend, to_city):
-    web_scrapper = IberiaWebScrapper(min_departing_hour, min_returning_hour, max_price)
-    try:
-        is_flight_interesting, round_flight = web_scrapper.scrape(from_city, to_city, weekend[0], weekend[1])
-        if is_flight_interesting:
-            print("An interesting flight was found!")
-            print(round_flight)
-            email_sender.send_flight(round_flight)
-        else:
-            # Check flight in next website
-            # Check next weekend
-            print("No interesting flights found")
+    for websites_scrapper in websites_scrappers:
+        ScrapperClass = getattr(importlib.import_module("__main__"), websites_scrapper)
+        web_scrapper = ScrapperClass(min_departing_hour, min_returning_hour, max_price)
+        try:
+            is_flight_interesting, round_flight = web_scrapper.scrape(from_city, to_city, weekend[0], weekend[1])
+            if is_flight_interesting:
+                print("An interesting flight was found!")
+                print(round_flight)
+                email_sender.send_flight(round_flight)
+            else:
+                # Check flight in next website
+                # Check next weekend
+                print("No interesting flights found")
 
 
-    except Exception as e:
-        print(traceback.format_exc())
-        web_scrapper.driver.quit()
-        #scrape_flights(weekend, to_city)
+        except Exception as e:
+            print(traceback.format_exc())
+            web_scrapper.driver.quit()
+            #scrape_flights(weekend, to_city)
 
 def get_next_friday():
     today = datetime.date.today()
