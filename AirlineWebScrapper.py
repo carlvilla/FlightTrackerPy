@@ -1,16 +1,18 @@
 from abc import (ABC, abstractmethod)
 
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.proxy import Proxy, ProxyType
 import undetected_chromedriver as uc
-from proxybroker import Broker
-import asyncio
 from datetime import datetime
+import random
 
 from RoundFlight import RoundFlight
 
 class AirlineWebScrapper(ABC):
 
-    def __init__(self, URL, min_departing_hour, min_returning_hour, max_price):
+    def __init__(self, URL, min_departing_hour, min_returning_hour, max_price, proxies):
+        self.proxies = proxies
         self.driver = self.setting_up_selenium()
         self.min_departing_hour = datetime.strptime(min_departing_hour, '%H:%M').time()
         self.min_returning_hour = datetime.strptime(min_returning_hour, '%H:%M').time()
@@ -19,39 +21,8 @@ class AirlineWebScrapper(ABC):
 
     def scrape(self, from_city="Madrid (MAD)", to_city="Nueva York (NYC)", departing_date="26/05/2023",
                returning_date="28/05/2023"):
-
-        proxies = asyncio.Queue()
-        broker = Broker(proxies)
-        tasks = asyncio.gather(broker.find(types=['HTTP', 'HTTPS'], limit=5), save(proxies, filename='proxies.txt'))
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(tasks)
-
-
         self.driver.get(self.url)
         return self.scrape_airline(from_city, to_city, departing_date, returning_date)
-
-    def get_random_proxy():
-        """
-        Get random proxy from 'proxies.txt'.
-        """
-        lines = open('proxies.txt').read().splitlines()
-        rproxy = random.choice(lines)
-        PROXY = rproxy
-
-    async def save(proxies, filename):
-        """
-        Save proxies to a file.
-        """
-        with open(filename, 'w') as file:
-            while True:
-                proxy = await proxies.get()
-                if proxy is None:
-                    break
-                # Check accurately if the proxy is working.
-                if proxy.is_working:
-                    protocol = 'https' if 'HTTPS' in proxy.types else 'http'
-                    line = '{protocol}://{proxy.host}:{proxy.port}\n'
-                    file.write(line)
 
     @abstractmethod
     def scrape_airline(self,from_city, to_city, departing_date, returning_date):
@@ -100,9 +71,45 @@ class AirlineWebScrapper(ABC):
         # Setting the driver path and requesting a page
         # driver = webdriver.Chrome(options=options)
         # driver = webdriver.Chrome('/Users/carlosvillablanco/Downloads/chromedriver/chromedriver', options=options)
-        driver = uc.Chrome()
+
         # Setting user agent iteratively as Chrome 108 and 107
         # driver.execute_cdp_cmd("Network.setUserAgentOverride", {"userAgent": useragentarray[1]})
         # Changing the property of the navigator value for webdriver to undefined
         # driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+
+        # Obtain proxy
+        proxy = self.get_proxy()
+        capabilities = webdriver.DesiredCapabilities.CHROME
+        proxy.add_to_capabilities(capabilities)
+        driver = uc.Chrome(desired_capabilities=capabilities)
+
+
         return driver
+
+    def get_proxy(self):
+        try:
+            # Select a random proxy
+            idx_proxy = random.randint(0, len(self.proxies))
+            proxy_data = self.proxies[idx_proxy]
+            proxy_ip = proxy_data['IP Address']
+            proxy_port = proxy_data['Port']
+            proxy_country = proxy_data['Country']
+            prox = Proxy()
+            prox.proxy_type = ProxyType.MANUAL
+            prox.http_proxy = proxy_ip + ":" + proxy_port
+            #prox.socks_proxy = proxy_ip + ":" + proxy_port
+            prox.ssl_proxy = proxy_ip + ":" + proxy_port
+            print("Trying to connect with proxy", proxy_ip, "from", proxy_country)
+
+
+            urllib.urlopen(
+                proxy_ip,
+                proxies={'http': proxy_ip}
+            )
+            return prox
+        except IOError:
+            print
+            "Connection error! (Trying proxy)"
+            return self.get_proxy
+
+        

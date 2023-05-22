@@ -15,12 +15,10 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from Flight import Flight
 
-
 class SkyscannerWebScrapper(AirlineWebScrapper):
 
-    def __init__(self, min_departing_hour, min_returning_hour, max_price):
-        super().__init__("https://www.skyscanner.es", min_departing_hour, min_returning_hour, max_price)
-
+    def __init__(self, min_departing_hour, min_returning_hour, max_price, proxies):
+        super().__init__("https://www.skyscanner.es", min_departing_hour, min_returning_hour, max_price, proxies)
 
     def scrape_airline(self, from_city, to_city, departing_date, returning_date):
         time.sleep(40)
