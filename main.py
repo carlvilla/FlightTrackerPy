@@ -3,6 +3,9 @@ import time
 import datetime
 import importlib
 
+import undetected_chromedriver as uc
+from selenium.webdriver.common.by import By
+
 from EmailSender import EmailSender
 from IberiaWebScrapper import IberiaWebScrapper
 from RyanairWebScrapper import RyanairWebScrapper
@@ -22,16 +25,18 @@ def main():
     # Get dates next weekends
     weekends = get_next_weekends(num_weeks_to_analyse)
     while(True):
+        proxies = get_free_proxies()
+        print("Number of proxies found:", len(proxies))
         for weekend in weekends:
             for to_city in destinations:
                 print("Checking flights from", from_city, "to", to_city, "[", weekend[0], "to", weekend[1], "]")
-                scrape_flights(weekend, to_city)
+                scrape_flights(weekend, to_city, proxies)
         time.sleep(18000)
 
-def scrape_flights(weekend, to_city):
+def scrape_flights(weekend, to_city, proxies):
     for websites_scrapper in websites_scrappers:
         ScrapperClass = getattr(importlib.import_module("__main__"), websites_scrapper)
-        web_scrapper = ScrapperClass(min_departing_hour, min_returning_hour, max_price)
+        web_scrapper = ScrapperClass(min_departing_hour, min_returning_hour, max_price, proxies)
         try:
             is_flight_interesting, round_flight = web_scrapper.scrape(from_city, to_city, weekend[0], weekend[1])
             if is_flight_interesting:
@@ -42,8 +47,6 @@ def scrape_flights(weekend, to_city):
                 # Check flight in next website
                 # Check next weekend
                 print("No interesting flights found")
-
-
         except Exception as e:
             print(traceback.format_exc())
             web_scrapper.driver.quit()
@@ -70,6 +73,27 @@ def get_next_weekends( num_weeks_to_analyse):
         next_sunday = sunday + datetime.timedelta(7 * idx_week)
         weekends.append((next_friday.strftime('%d/%m/%Y'), next_sunday.strftime('%d/%m/%Y')))
     return weekends
+
+def get_free_proxies():
+    print("Retrieving proxies...")
+    driver = uc.Chrome()
+    driver.get('https://sslproxies.org')
+    table = driver.find_element(By.TAG_NAME, 'table')
+    thead = table.find_element(By.TAG_NAME, 'thead').find_elements(By.TAG_NAME, 'th')
+    tbody = table.find_element(By.TAG_NAME, 'tbody').find_elements(By.TAG_NAME, 'tr')
+    headers = []
+    for th in thead:
+        headers.append(th.text.strip())
+    proxies = []
+    for tr in tbody:
+        proxy_data = {}
+        tds = tr.find_elements(By.TAG_NAME, 'td')
+        for i in range(len(headers)):
+            proxy_data[headers[i]] = tds[i].text.strip()
+        proxies.append(proxy_data)
+    driver.quit()
+    print("Proxies retrieved!")
+    return proxies
 
 if __name__ == '__main__':
     main()
