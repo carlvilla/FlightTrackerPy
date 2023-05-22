@@ -2,7 +2,8 @@ from abc import (ABC, abstractmethod)
 
 from selenium import webdriver
 import undetected_chromedriver as uc
-
+from proxybroker import Broker
+import asyncio
 from datetime import datetime
 
 from RoundFlight import RoundFlight
@@ -18,8 +19,39 @@ class AirlineWebScrapper(ABC):
 
     def scrape(self, from_city="Madrid (MAD)", to_city="Nueva York (NYC)", departing_date="26/05/2023",
                returning_date="28/05/2023"):
+
+        proxies = asyncio.Queue()
+        broker = Broker(proxies)
+        tasks = asyncio.gather(broker.find(types=['HTTP', 'HTTPS'], limit=5), save(proxies, filename='proxies.txt'))
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(tasks)
+
+
         self.driver.get(self.url)
         return self.scrape_airline(from_city, to_city, departing_date, returning_date)
+
+    def get_random_proxy():
+        """
+        Get random proxy from 'proxies.txt'.
+        """
+        lines = open('proxies.txt').read().splitlines()
+        rproxy = random.choice(lines)
+        PROXY = rproxy
+
+    async def save(proxies, filename):
+        """
+        Save proxies to a file.
+        """
+        with open(filename, 'w') as file:
+            while True:
+                proxy = await proxies.get()
+                if proxy is None:
+                    break
+                # Check accurately if the proxy is working.
+                if proxy.is_working:
+                    protocol = 'https' if 'HTTPS' in proxy.types else 'http'
+                    line = '{protocol}://{proxy.host}:{proxy.port}\n'
+                    file.write(line)
 
     @abstractmethod
     def scrape_airline(self,from_city, to_city, departing_date, returning_date):
