@@ -9,10 +9,13 @@ from bs4 import BeautifulSoup
 
 from Flight import Flight
 
+
+
 class IberiaWebScrapper(AirlineWebScrapper):
 
     def __init__(self, min_departing_hour, min_returning_hour, max_price, proxies):
-        super().__init__("https://www.iberia.com/es", min_departing_hour, min_returning_hour, max_price, proxies)
+        self.URL = "https://www.iberia.com/es"
+        super().__init__(self.URL, min_departing_hour, min_returning_hour, max_price, proxies)
 
     def scrape_airline(self, from_city, to_city, departing_date, returning_date):
         # Wait on the webpage before trying anything

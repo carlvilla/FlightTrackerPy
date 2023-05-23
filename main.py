@@ -19,13 +19,14 @@ email = "carlosvillablanco@gmail.com"
 email_sender = EmailSender(email)
 num_weeks_to_analyse = 10
 destinations = ["Londres", "París", "Amsterdam", "Berlín", "Roma", "Praga", "Atenas", "Viena", "Lisboa", "Dublín", "Budapest", "Estocolmo", "Varsovia", "Copenhague", "Helsinki", "Bruselas", "Oslo", "Zurich", "Milán", "Múnich", "Estambul", "Frankfurt", "Bucarest", "Belgrado", "Sofía", "Lisboa", "Oporto", "Ginebra", "Venecia", "Niza", "Marsella", "Zagreb", "Lviv", "Dubrovnik", "Split", "Ámsterdam", "Birmingham", "Boloña", "Bordeaux", "Breslavia", "Bristol", "Budapest", "Catania", "Colonia", "Corfu", "Córcega", "Cork", "Cracovia", "Doha", "Dortmund", "Dresden", "Dusseldorf", "Edimburgo", "Eindhoven", "Faro", "Florencia", "Gdansk", "Glasgow", "Gotemburgo", "Hamburgo", "Hanóver", "Helsinki", "Ibiza", "Innsbruck", "Jersey", "Kiev", "La Palma", "Lanzarote", "La Valeta", "Liubliana", "Luxemburgo", "Málaga", "Manchester", "Menorca", "Mikonos", "Munich", "Nápoles", "Niza", "Oporto", "Palma de Mallorca", "Pisa", "Podgorica", "Reikiavik", "Riga", "Rotterdam", "Salónica", "San Petersburgo", "Santorini", "Sarajevo", "Sibiu", "Sofía", "Split", "Tallin", "Tánger", "Tenerife", "Tirana", "Turín", "Valencia", "Varsovia", "Varna", "Venecia", "Verona", "Viena", "Vigo", "Zagreb", "Zante", "Zúrich"]
-websites_scrappers = ["IberiaWebScrapper", "RyanairWebScrapper"]
+websites_scrappers = ["SkyscannerWebScrapper", "IberiaWebScrapper", "RyanairWebScrapper"]
 
 def main():
     # Get dates next weekends
     weekends = get_next_weekends(num_weeks_to_analyse)
     while(True):
-        proxies = get_free_proxies()
+        proxies = []
+        #proxies = get_free_proxies()
         print("Number of proxies found:", len(proxies))
         for weekend in weekends:
             for to_city in destinations:

@@ -6,6 +6,8 @@ from selenium.webdriver.common.proxy import Proxy, ProxyType
 import undetected_chromedriver as uc
 from datetime import datetime
 import random
+import urllib
+import time
 
 from RoundFlight import RoundFlight
 
@@ -34,6 +36,11 @@ class AirlineWebScrapper(ABC):
     def extract_weekends_next_months(self, num_months=2):
         print("Extracting the weekends (Friday to Sunday) for the next", num_months, "months")
 
+    def filter_round_flights_by_hours(self, flights):
+        flights_without_none_type = filter(None, flights)
+        return list(
+            filter(lambda flight: flight.get_departing_hour() > self.min_departing_hour and flight.get_returning_hour() > self.min_returning_hour, flights_without_none_type))
+
     def filter_flights_by_departing_hour(self, flights):
         flights_without_none_type = filter(None, flights)
         return list(
@@ -53,8 +60,12 @@ class AirlineWebScrapper(ABC):
         if departing_flights is not None and len(departing_flights) > 0 and returning_flights is not None and len(returning_flights) > 0:
             cheapest_departing_flight = min(departing_flights, key=lambda flight: flight.get_price())
             cheapest_returning_flight = min(returning_flights, key=lambda flight: flight.get_price())
-            round_flight = RoundFlight(cheapest_departing_flight, cheapest_returning_flight)
+            round_flight = RoundFlight(cheapest_departing_flight, cheapest_returning_flight, self.URL)
             return round_flight
+    def find_cheapest_round_flight(self, round_flights):
+        if round_flights is not None and len(round_flights) > 0:
+            cheapest_flight = min(round_flights, key=lambda flight: flight.get_total_price())
+            return cheapest_flight
 
     def setting_up_selenium(self):
         # chromedriver_autoinstaller.install()
@@ -78,38 +89,45 @@ class AirlineWebScrapper(ABC):
         # driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
         # Obtain proxy
-        proxy = self.get_proxy()
-        capabilities = webdriver.DesiredCapabilities.CHROME
-        proxy.add_to_capabilities(capabilities)
-        driver = uc.Chrome(desired_capabilities=capabilities)
+        # proxy = self.get_proxy()
 
+        # options.add_argument('--proxy-server=' + proxy.http_proxy)
+        # options.add_argument("--headless")
+
+        driver = uc.Chrome(chrome_options=options)
+
+        #driver.get('https://httpbin.org/ip')
+        #print(driver.find_element(By.TAG_NAME, "body").text)
+        #driver.close()
 
         return driver
 
     def get_proxy(self):
+        prox = Proxy()
         try:
             # Select a random proxy
             idx_proxy = random.randint(0, len(self.proxies))
             proxy_data = self.proxies[idx_proxy]
+
+            print(proxy_data)
+
             proxy_ip = proxy_data['IP Address']
             proxy_port = proxy_data['Port']
             proxy_country = proxy_data['Country']
-            prox = Proxy()
             prox.proxy_type = ProxyType.MANUAL
             prox.http_proxy = proxy_ip + ":" + proxy_port
-            #prox.socks_proxy = proxy_ip + ":" + proxy_port
-            prox.ssl_proxy = proxy_ip + ":" + proxy_port
+
             print("Trying to connect with proxy", proxy_ip, "from", proxy_country)
-
-
-            urllib.urlopen(
-                proxy_ip,
-                proxies={'http': proxy_ip}
-            )
-            return prox
-        except IOError:
-            print
-            "Connection error! (Trying proxy)"
-            return self.get_proxy
+            proxy_handler = urllib.request.ProxyHandler({'https': proxy_ip + ":" + proxy_port})
+            opener = urllib.request.build_opener(proxy_handler)
+            opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+            urllib.request.install_opener(opener)
+            req = urllib.request.Request('http://www.example.com')
+            sock = urllib.request.urlopen(req)
+            print("Proxy seems to be working!")
+        except Exception:
+            print("Connection error! (Trying another proxy)")
+            return self.get_proxy()
+        return prox
 
         
