@@ -1,15 +1,11 @@
 from AirlineWebScrapper import AirlineWebScrapper
 import time
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from bs4 import BeautifulSoup
-
 from Flight import Flight
-
-
 
 class IberiaWebScrapper(AirlineWebScrapper):
 
@@ -37,23 +33,27 @@ class IberiaWebScrapper(AirlineWebScrapper):
         flight_return_date.send_keys(returning_date)
         time.sleep(3.632)
         WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, 'buttonSubmit1'))).click()
-        WebDriverWait(self.driver, 40).until(EC.presence_of_element_located((By.ID, 'originDestination-0')))
+        if self.was_bot_detected():
+            return False, None
+        WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.ID, 'originDestination-0')))
         time.sleep(1.134)
         departing_flights, returning_flights = self.retrieve_all_flights(from_city, to_city, departing_date, returning_date)
         departing_flights = self.filter_flights_by_departing_hour(departing_flights)
         returning_flights = self.filter_flights_by_returning_hour(returning_flights)
-
-        #self.print_flights(departing_flights, returning_flights)
-
         round_flight = self.find_cheapest_flights(departing_flights, returning_flights)
-        #if round_flight is not None:
-        #    print("CHEAPEST ROUND FLIGHT:")
-        #    print(round_flight)
-
         print("Successful scrapping")
         self.close_scrapper()
 
         return self.check_round_flights_under_max_price(round_flight), round_flight
+
+    def was_bot_detected(self):
+        try:
+            WebDriverWait(self.driver, 10).until(EC.text_to_be_present_in_element((By.CLASS_NAME, "ib-error-amadeus__title"), 'Lo sentimos,'))
+            self.close_scrapper()
+            print("The bot seems to have been detected...")
+            return True
+        except Exception:
+            return False
 
     def print_flights(self, departing_flights, returning_flights):
         print("DEPARTING FLIGHTS")

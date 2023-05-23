@@ -90,10 +90,10 @@ class AirlineWebScrapper(ABC):
         # driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
         # Obtain proxy
-        # proxy = self.get_proxy()
+        proxy = self.get_proxy()
 
-        # options.add_argument('--proxy-server=' + proxy.http_proxy)
-        # options.add_argument("--headless")
+        options.add_argument('--proxy-server=' + proxy.http_proxy)
+        options.add_argument("--headless")
 
         driver = uc.Chrome(chrome_options=options)
 
