@@ -28,7 +28,7 @@ destinations = ["Londres", "París", "Amsterdam", "Berlín", "Roma", "Praga", "A
                 "Jersey", "La Palma", "Lanzarote", "Nantes", "La Valeta", "Liubliana", "Luxemburgo", "Málaga", "Pisa",
                 "Manchester", "Menorca", "Mikonos", "Nápoles", "Palma de Mallorca", "Turin", "Podgorica", "Reikiavik",
                 "Riga", "Rotterdam", "Santorini", "Sarajevo", "Split", "Tallin", "Tánger", "Tenerife", "Tirana",
-                "Turín", "Varna", "Verona", "Barcelona"]
+                "Turín", "Varna", "Verona", "Barcelona", "Casablanca", "Tunisia", "Tel Aviv", "Ammán", "Beirut", "Cairo"]
 websites_scrappers = ["SkyscannerWebScrapper", "RyanairWebScrapper", "IberiaWebScrapper"]
 
 def main():
@@ -39,9 +39,9 @@ def main():
         # proxies = get_free_proxies()
         print("Number of proxies found:", len(proxies))
         for weekend in weekends:
-            for to_city in destinations:
+            for idx, to_city in enumerate(destinations):
                 print("Checking flights from " + from_city + " to " + to_city + " [" + weekend[0] + " to "
-                      + weekend[1] + "]")
+                      + weekend[1] + "] - Destination " + str(idx + 1) + "/" + str(len(destinations)-1))
                 scrape_flights(weekend, to_city, proxies)
         time.sleep(7200)
 
