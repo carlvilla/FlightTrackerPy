@@ -11,6 +11,8 @@ import time
 
 from RoundFlight import RoundFlight
 
+agents = ["Firefox/66.0.3", "Chrome/73.0.3683.68", "Edge/16.16299"]
+
 class AirlineWebScrapper(ABC):
 
     def __init__(self, URL, min_departing_hour, min_returning_hour, max_price, proxies):
@@ -80,6 +82,9 @@ class AirlineWebScrapper(ABC):
         options.add_experimental_option("useAutomationExtension", False)
         # Setting incognito mode
         options.add_argument("--incognito")
+        # Set browser’s user agent
+        options.add_argument(' - user-agent=' + random.choice(agents) + '"')
+
         # Setting the driver path and requesting a page
         # driver = webdriver.Chrome(options=options)
         # driver = webdriver.Chrome('/Users/carlosvillablanco/Downloads/chromedriver/chromedriver', options=options)

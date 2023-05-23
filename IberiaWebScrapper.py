@@ -23,13 +23,13 @@ class IberiaWebScrapper(AirlineWebScrapper):
         flight_return_date = self.driver.find_element(by='xpath', value='//input[@name="flight_return_date"]')
         flight_origin.clear()
         flight_origin.send_keys(from_city)
-        time.sleep(4.324)
+        time.sleep(4.124)
         flight_origin.send_keys(Keys.ENTER)
         flight_destiny.send_keys(to_city)
         time.sleep(4.513)
         flight_destiny.send_keys(Keys.ENTER)
         flight_hotel_round_date.send_keys(departing_date)
-        time.sleep(4.743)
+        time.sleep(4.243)
         flight_return_date.send_keys(returning_date)
         time.sleep(3.632)
         WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, 'buttonSubmit1'))).click()
@@ -55,18 +55,10 @@ class IberiaWebScrapper(AirlineWebScrapper):
         except Exception:
             return False
 
-    def print_flights(self, departing_flights, returning_flights):
-        print("DEPARTING FLIGHTS")
-        for flight in departing_flights:
-            print(flight)
-
-        print("RETURNING FLIGHTS")
-        for flight in returning_flights:
-            print(flight)
-
     def retrieve_all_flights(self, from_city, to_city, departing_date, returning_date):
         print("Retrieving flights from iberia.com...")
-        time.sleep(7.537)
+        WebDriverWait(self.driver, 60).until(EC.element_to_be_clickable((By.ID, 'bbki-slice-info-cabin-0-0-E-btn')))
+        time.sleep(1.137)
         flight_page_source = self.driver.page_source
         soup = BeautifulSoup(flight_page_source, 'lxml')
         div_departing_flights = soup.find('div', {'class': 'ib-fc-calendar-slides-loading'})
@@ -74,8 +66,8 @@ class IberiaWebScrapper(AirlineWebScrapper):
         for div_flight in div_departing_flights.findChildren("div", recursive=False)[2:-1]:
             flight = self.extract_flight(from_city, to_city, departing_date, div_flight)
             departing_flights.append(flight)
-        WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.ID, 'bbki-slice-info-cabin-0-0-E-btn'))).click()
-        time.sleep(3.537)
+        WebDriverWait(self.driver, 60).until(EC.element_to_be_clickable((By.ID, 'bbki-slice-info-cabin-0-0-E-btn'))).click()
+        time.sleep(3.337)
         flight_page_source = self.driver.page_source
         soup = BeautifulSoup(flight_page_source, 'lxml')
         div_returning_flights = soup.find('div', {'class': 'ib-fc-calendar-slides-loading'})
