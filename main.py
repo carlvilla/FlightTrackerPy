@@ -17,22 +17,22 @@ min_departing_hour = "16:00"
 min_returning_hour = "18:00"
 email = "carlosvillablanco@gmail.com"
 email_sender = EmailSender(email)
-num_weeks_to_analyse = 10
+num_weeks_to_analyse = 20
 destinations = ["Londres", "París", "Amsterdam", "Berlín", "Roma", "Praga", "Atenas", "Viena", "Dublín", "Budapest", "Estocolmo", "Varsovia", "Copenhague", "Helsinki", "Bruselas", "Oslo", "Zurich", "Milán", "Múnich", "Estambul", "Frankfurt", "Bucarest", "Belgrado", "Sofía", "Oporto", "Ginebra", "Venecia", "Niza", "Marsella", "Zagreb", "Dubrovnik", "Dubai", "Birmingham", "Bordeaux", "Breslavia", "Bristol", "Catania", "Colonia", "Corfu", "Córcega", "Cork", "Cracovia", "Doha", "Dortmund", "Dresden", "Dusseldorf", "Edimburgo", "Eindhoven", "Faro", "Florencia", "Gdansk", "Glasgow", "Gotemburgo", "Hamburgo", "Hanóver", "Ibiza", "Jersey", "La Palma", "Lanzarote", "La Valeta", "Liubliana", "Luxemburgo", "Málaga", "Manchester", "Menorca", "Mikonos", "Nápoles", "Palma de Mallorca", "Pisa", "Podgorica", "Reikiavik", "Riga", "Rotterdam", "Santorini", "Sarajevo", "Split", "Tallin", "Tánger", "Tenerife", "Tirana", "Turín", "Varna", "Verona"]
-websites_scrappers = ["SkyscannerWebScrapper", "IberiaWebScrapper", "RyanairWebScrapper"]
+websites_scrappers = ["RyanairWebScrapper"]
 
 def main():
     # Get dates next weekends
     weekends = get_next_weekends(num_weeks_to_analyse)
     while(True):
-        proxies = []
-        #proxies = get_free_proxies()
+        proxies = get_free_proxies()
         print("Number of proxies found:", len(proxies))
         for weekend in weekends:
             for to_city in destinations:
-                print("Checking flights from", from_city, "to", to_city, "[", weekend[0], "to", weekend[1], "]")
+                print("Checking flights from " + from_city + " to " + to_city + " [" + weekend[0] + " to "
+                      + weekend[1] + "]")
                 scrape_flights(weekend, to_city, proxies)
-        time.sleep(18000)
+        time.sleep(7200)
 
 def scrape_flights(weekend, to_city, proxies):
     for websites_scrapper in websites_scrappers:

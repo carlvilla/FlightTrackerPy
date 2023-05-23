@@ -98,7 +98,7 @@ class SkyscannerWebScrapper(AirlineWebScrapper):
             returning_duration = durations[1].text
             departing_flight = Flight(from_city, to_city, departing_date, departing_hour, departing_duration, "0")
             returning_flight = Flight(to_city, from_city, departing_date, returning_hour, returning_duration, "0")
-            flight = RoundFlight(departing_flight, returning_flight, price, self.URL)
+            flight = RoundFlight(departing_flight, returning_flight, self.URL, price)
             flights.append(flight)
         return flights
 

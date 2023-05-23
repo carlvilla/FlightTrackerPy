@@ -1,15 +1,12 @@
 class RoundFlight:
 
-    def __init__(self, departing_flight, returning_flight, website_found):
+    def __init__(self, departing_flight, returning_flight, website_found, price=None):
         self.departing_flight = departing_flight
         self.returning_flight = returning_flight
-        self.price = self.departing_flight.get_price() + self.returning_flight.get_price()
-        self.website_found = website_found
-
-    def __init__(self, departing_flight, returning_flight, price, website_found):
-        self.departing_flight = departing_flight
-        self.returning_flight = returning_flight
-        self.price = self.remove_euro(price)
+        if price is not None:
+            self.price = self.remove_euro(price)
+        else:
+            self.price = self.departing_flight.get_price() + self.returning_flight.get_price()
         self.website_found = website_found
 
     def get_departing_hour(self):
