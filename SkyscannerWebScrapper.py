@@ -27,6 +27,8 @@ class SkyscannerWebScrapper(AirlineWebScrapper):
         super().__init__(self.URL, min_departing_hour, min_returning_hour, max_price, proxies)
 
     def scrape_airline(self, from_city, to_city, departing_date, returning_date):
+        if self.was_bot_detected(self):
+            return False, None
         time.sleep(4.24)
         self.accept_cookies()
         flight_destiny = self.driver.find_element(by='xpath', value='//input[@id="destinationInput-input"]')
@@ -102,19 +104,14 @@ class SkyscannerWebScrapper(AirlineWebScrapper):
             flights.append(flight)
         return flights
 
-    def regex_to_be_present_in_element(self, locator, regexp):
-        """ An expectation for checking if the given text is present in the
-        specified element, extended to allow and return a regex match
-        locator, text
-        """
-        def _predicate(driver):
-            try:
-                element_text = driver.find_element(*locator).text
-                return re.search(regexp, element_text)
-            except StaleElementReferenceException:
-                return False
-
-        return _predicate
+    def was_bot_detected(self):
+        try:
+            WebDriverWait(self.driver, 10).until(EC.text_to_be_present_in_element((By.CLASS_NAME, "App_App__headline__MTE3M"), 'Are you a person or a robot?'))
+            self.close_scrapper()
+            print("The bot seems to have been detected...")
+            return True
+        except Exception:
+            return False
 
     def accept_cookies(self):
         WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@class="BpkButtonBase_bpk-button__NmRiZ UserPreferencesContent_buttons__YTQ4Y UserPreferencesContent_acceptButton__NjQxZ"]'))).click()
