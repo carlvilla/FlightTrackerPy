@@ -2,7 +2,6 @@ import traceback
 import time
 import datetime
 import importlib
-
 import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 
@@ -18,14 +17,15 @@ min_returning_hour = "18:00"
 email = "carlosvillablanco@gmail.com"
 email_sender = EmailSender(email)
 num_weeks_to_analyse = 20
-destinations = ["Londres", "París", "Amsterdam", "Berlín", "Roma", "Praga", "Atenas", "Viena", "Dublín", "Budapest", "Estocolmo", "Varsovia", "Copenhague", "Helsinki", "Bruselas", "Oslo", "Zurich", "Milán", "Múnich", "Estambul", "Frankfurt", "Bucarest", "Belgrado", "Sofía", "Oporto", "Ginebra", "Venecia", "Niza", "Marsella", "Zagreb", "Dubrovnik", "Dubai", "Birmingham", "Bordeaux", "Breslavia", "Bristol", "Catania", "Colonia", "Corfu", "Córcega", "Cork", "Cracovia", "Doha", "Dortmund", "Dresden", "Dusseldorf", "Edimburgo", "Eindhoven", "Faro", "Florencia", "Gdansk", "Glasgow", "Gotemburgo", "Hamburgo", "Hanóver", "Ibiza", "Jersey", "La Palma", "Lanzarote", "La Valeta", "Liubliana", "Luxemburgo", "Málaga", "Manchester", "Menorca", "Mikonos", "Nápoles", "Palma de Mallorca", "Pisa", "Podgorica", "Reikiavik", "Riga", "Rotterdam", "Santorini", "Sarajevo", "Split", "Tallin", "Tánger", "Tenerife", "Tirana", "Turín", "Varna", "Verona"]
-websites_scrappers = ["RyanairWebScrapper"]
+destinations = ["Londres", "París", "Amsterdam", "Berlín", "Roma", "Praga", "Atenas", "Viena", "Dublín", "Leeds", "Lyon", "Bratislava", "Reykjavik", "Vilna", "Budapest", "Estocolmo", "Varsovia", "Copenhague", "Helsinki", "Bruselas", "Oslo", "Zurich", "Milán", "Múnich", "Estambul", "Skopje", "Frankfurt", "Bucarest", "Toulouse", "Belgrado", "Sofía", "Oporto", "Marrakech", "Fez", "Ginebra", "Funchal", "Venecia", "Niza", "Bolonia", "Marsella", "Zagreb", "Dubrovnik", "Dubai", "Birmingham", "Bordeaux", "Breslavia", "Stuttgart", "Bremen", "Bristol", "Catania", "Basilea", "Colonia", "Bastia", "Corfu", "Córcega", "Cerdeña", "Cork", "Cracovia", "Doha", "Dortmund", "Dresden", "Dusseldorf", "Edimburgo", "Eindhoven", "Faro", "Florencia", "Gdansk", "Glasgow", "Gotemburgo", "Hamburgo", "Hanóver", "Ibiza", "Jersey", "La Palma", "Lanzarote", "Nantes", "La Valeta", "Liubliana", "Luxemburgo", "Málaga", "Pisa", "Manchester", "Menorca", "Mikonos", "Nápoles", "Palma de Mallorca", "Turin", "Podgorica", "Reikiavik", "Riga", "Rotterdam", "Santorini", "Sarajevo", "Split", "Tallin", "Tánger", "Tenerife", "Tirana", "Turín", "Varna", "Verona"]
+websites_scrappers = ["SkyscannerWebScrapper", "RyanairWebScrapper", "IberiaWebScrapper"]
 
 def main():
     # Get dates next weekends
     weekends = get_next_weekends(num_weeks_to_analyse)
     while(True):
-        proxies = get_free_proxies()
+        proxies = []
+        # proxies = get_free_proxies()
         print("Number of proxies found:", len(proxies))
         for weekend in weekends:
             for to_city in destinations:
