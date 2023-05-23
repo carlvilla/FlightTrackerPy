@@ -27,14 +27,14 @@ class SkyscannerWebScrapper(AirlineWebScrapper):
         super().__init__(self.URL, min_departing_hour, min_returning_hour, max_price, proxies)
 
     def scrape_airline(self, from_city, to_city, departing_date, returning_date):
-        time.sleep(2.24)
+        time.sleep(4.24)
         self.accept_cookies()
         flight_destiny = self.driver.find_element(by='xpath', value='//input[@id="destinationInput-input"]')
         time.sleep(4.324)
         flight_destiny.click()
-        time.sleep(1.2)
+        time.sleep(3.2)
         flight_destiny.send_keys(to_city)
-        time.sleep(1.56)
+        time.sleep(4.56)
         flight_destiny.send_keys(Keys.ENTER)
         time.sleep(5.743)
         _departing_date = datetime.strptime(departing_date, '%d/%m/%Y')

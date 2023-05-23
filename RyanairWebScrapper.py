@@ -52,7 +52,7 @@ class RyanairWebScrapper(AirlineWebScrapper):
                                                                          returning_date)
         departing_flights = self.filter_flights_by_departing_hour(departing_flights)
         returning_flights = self.filter_flights_by_returning_hour(returning_flights)
-        round_flight = self.find_cheapest_round_flight(departing_flights, returning_flights)
+        round_flight = self.find_cheapest_flights(departing_flights, returning_flights)
         print("Successful scrapping")
         self.close_scrapper()
         return self.check_round_flights_under_max_price(round_flight), round_flight

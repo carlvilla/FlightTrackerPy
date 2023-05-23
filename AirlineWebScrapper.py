@@ -56,12 +56,13 @@ class AirlineWebScrapper(ABC):
             return round_flight.get_total_price() < self.max_price
         return False
 
-    def find_cheapest_round_flight(self, departing_flights, returning_flights):
+    def find_cheapest_flights(self, departing_flights, returning_flights):
         if departing_flights is not None and len(departing_flights) > 0 and returning_flights is not None and len(returning_flights) > 0:
             cheapest_departing_flight = min(departing_flights, key=lambda flight: flight.get_price())
             cheapest_returning_flight = min(returning_flights, key=lambda flight: flight.get_price())
             round_flight = RoundFlight(cheapest_departing_flight, cheapest_returning_flight, self.URL)
             return round_flight
+
     def find_cheapest_round_flight(self, round_flights):
         if round_flights is not None and len(round_flights) > 0:
             cheapest_flight = min(round_flights, key=lambda flight: flight.get_total_price())

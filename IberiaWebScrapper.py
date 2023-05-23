@@ -33,11 +33,11 @@ class IberiaWebScrapper(AirlineWebScrapper):
         time.sleep(4.513)
         flight_destiny.send_keys(Keys.ENTER)
         flight_hotel_round_date.send_keys(departing_date)
-        time.sleep(5.743)
+        time.sleep(4.743)
         flight_return_date.send_keys(returning_date)
         time.sleep(3.632)
         WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, 'buttonSubmit1'))).click()
-        WebDriverWait(self.driver, 60).until(EC.presence_of_element_located((By.ID, 'originDestination-0')))
+        WebDriverWait(self.driver, 40).until(EC.presence_of_element_located((By.ID, 'originDestination-0')))
         time.sleep(1.134)
         departing_flights, returning_flights = self.retrieve_all_flights(from_city, to_city, departing_date, returning_date)
         departing_flights = self.filter_flights_by_departing_hour(departing_flights)
@@ -45,7 +45,7 @@ class IberiaWebScrapper(AirlineWebScrapper):
 
         #self.print_flights(departing_flights, returning_flights)
 
-        round_flight = self.find_cheapest_round_flight(departing_flights, returning_flights)
+        round_flight = self.find_cheapest_flights(departing_flights, returning_flights)
         #if round_flight is not None:
         #    print("CHEAPEST ROUND FLIGHT:")
         #    print(round_flight)
@@ -66,7 +66,7 @@ class IberiaWebScrapper(AirlineWebScrapper):
 
     def retrieve_all_flights(self, from_city, to_city, departing_date, returning_date):
         print("Retrieving flights from iberia.com...")
-        time.sleep(10.537)
+        time.sleep(7.537)
         flight_page_source = self.driver.page_source
         soup = BeautifulSoup(flight_page_source, 'lxml')
         div_departing_flights = soup.find('div', {'class': 'ib-fc-calendar-slides-loading'})
