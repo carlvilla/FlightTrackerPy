@@ -1,3 +1,4 @@
+import pickle
 import re
 
 from selenium.common import StaleElementReferenceException
@@ -27,9 +28,10 @@ class SkyscannerWebScrapper(AirlineWebScrapper):
         super().__init__(self.URL, min_departing_hour, min_returning_hour, max_price, proxies)
 
     def scrape_airline(self, from_city, to_city, departing_date, returning_date):
+        self.load_cookies(self.driver)
         if self.was_bot_detected():
             return False, None
-        time.sleep(2.24)
+        time.sleep(2.14)
         self.accept_cookies()
         flight_destiny = self.driver.find_element(by='xpath', value='//input[@id="destinationInput-input"]')
         time.sleep(3.324)
@@ -61,6 +63,13 @@ class SkyscannerWebScrapper(AirlineWebScrapper):
         search_button = self.driver.find_element(by='xpath',value='//button[normalize-space()="Buscar"]')
         search_button.click()
         search_button.click()
+
+        #time.sleep(30)
+        #self.safe_cookies(self.driver)
+        #time.sleep(10)
+
+        self.accept_cookies()
+
         # Press "More results" button
         WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[normalize-space()="Más resultados"]'))).click()
         time.sleep(3.23)
@@ -106,7 +115,7 @@ class SkyscannerWebScrapper(AirlineWebScrapper):
 
     def was_bot_detected(self):
         try:
-            WebDriverWait(self.driver, 10).until(EC.text_to_be_present_in_element((By.CLASS_NAME, "App_App__headline__MTE3M"), 'Are you a person or a robot?'))
+            WebDriverWait(self.driver, 3).until(EC.text_to_be_present_in_element((By.CLASS_NAME, "App_App__headline__MTE3M"), 'Are you a person or a robot?'))
             self.close_scrapper()
             print("The bot seems to have been detected...")
             return True
@@ -114,4 +123,16 @@ class SkyscannerWebScrapper(AirlineWebScrapper):
             return False
 
     def accept_cookies(self):
-        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@class="BpkButtonBase_bpk-button__NmRiZ UserPreferencesContent_buttons__YTQ4Y UserPreferencesContent_acceptButton__NjQxZ"]'))).click()
+        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[normalize-space()="Aceptar"]'))).click()
+
+    def load_cookies(self, driver):
+        '''
+        The idea is to load cookies from a session in which the bot detection system was solved manually.
+        '''
+        print("Loading cookies...")
+        cookies = pickle.load(open("cookies/cookies_skyscanner.pkl", "rb"))
+        print(cookies)
+        if len(cookies) > 0:
+            for cookie in cookies:
+                driver.add_cookie(cookie)
+            driver.refresh()

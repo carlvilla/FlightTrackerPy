@@ -1,5 +1,7 @@
+import pickle
 from abc import (ABC, abstractmethod)
 
+from fake_useragent import UserAgent
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.proxy import Proxy, ProxyType
@@ -8,6 +10,8 @@ from datetime import datetime
 import random
 import urllib
 import time
+import ast
+import re
 
 from RoundFlight import RoundFlight
 
@@ -15,13 +19,14 @@ agents = ["Firefox/66.0.3", "Chrome/73.0.3683.68", "Edge/16.16299"]
 
 class AirlineWebScrapper(ABC):
 
-    def __init__(self, URL, min_departing_hour, min_returning_hour, max_price, proxies):
+    def __init__(self, URL, min_departing_hour, min_returning_hour, max_price, num_weeks_to_analyse, proxies):
         self.proxies = proxies
         self.driver = self.setting_up_selenium()
         self.min_departing_hour = datetime.strptime(min_departing_hour, '%H:%M').time()
         self.min_returning_hour = datetime.strptime(min_returning_hour, '%H:%M').time()
         self.url = URL
         self.max_price = max_price
+        self.num_weeks_to_analyse = num_weeks_to_analyse
 
     def scrape(self, from_city="Madrid (MAD)", to_city="Nueva York (NYC)", departing_date="26/05/2023",
                returning_date="28/05/2023"):
@@ -71,42 +76,46 @@ class AirlineWebScrapper(ABC):
             return cheapest_flight
 
     def setting_up_selenium(self):
-        # chromedriver_autoinstaller.install()
-        # Create Chromeoptions instance
-        options = webdriver.ChromeOptions()
-        # Adding argument to disable the AutomationControlled flag
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        # Exclude the collection of enable-automation switches
-        options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        # Turn-off userAutomationExtension
-        options.add_experimental_option("useAutomationExtension", False)
-        # Setting incognito mode
-        options.add_argument("--incognito")
-        # Set browser’s user agent
-        options.add_argument(' - user-agent=' + random.choice(agents) + '"')
+        try:
+            # chromedriver_autoinstaller.install()
+            # Create Chromeoptions instance
+            options = webdriver.ChromeOptions()
+            # Adding argument to disable the AutomationControlled flag
+            options.add_argument("--disable-blink-features=AutomationControlled")
+            options.add_experimental_option('excludeSwitches', ['enable-logging'])
+            # Turn-off userAutomationExtension
+            options.add_experimental_option("useAutomationExtension", False)
+            # Setting incognito mode
+            options.add_argument("--incognito")
+            # Set browser’s user agent
+            #options.add_argument(' - user-agent=' + random.choice(agents) + '"')
+            ua = UserAgent()
+            options.add_argument(f'user-agent={ua.random}')
+            options.add_argument("start-maximized")
+            #options.add_argument('window-size=1920x1080')
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-gpu')
+            #proxy = self.get_proxy()
+            #options.add_argument('--proxy-server=%s' % proxy.http_proxy)
+            driver = uc.Chrome(chrome_options=options)
+            #driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+            #driver.get('https://httpbin.org/ip')
+            #dict = ast.literal_eval(re.search('({.+})', driver.find_element(By.TAG_NAME, "body").text).group(0))
+            #obtained_ip = dict["origin"]
+            #if obtained_ip != proxy.ip:
+            #    print("The obtained IP is not from the proxy...")
+            #    return self.setting_up_selenium()
+            #driver.close()
 
-        # Setting the driver path and requesting a page
-        # driver = webdriver.Chrome(options=options)
-        # driver = webdriver.Chrome('/Users/carlosvillablanco/Downloads/chromedriver/chromedriver', options=options)
+            return driver
+        except Exception:
+            print("An error occurred seeting proxy...")
+            return self.setting_up_selenium()
 
-        # Setting user agent iteratively as Chrome 108 and 107
-        # driver.execute_cdp_cmd("Network.setUserAgentOverride", {"userAgent": useragentarray[1]})
-        # Changing the property of the navigator value for webdriver to undefined
-        # driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-
-        # Obtain proxy
-        # proxy = self.get_proxy()
-
-        # options.add_argument('--proxy-server=' + proxy.http_proxy)
-        # options.add_argument("--headless")
-
-        driver = uc.Chrome(chrome_options=options)
-
-        #driver.get('https://httpbin.org/ip')
-        #print(driver.find_element(By.TAG_NAME, "body").text)
-        #driver.close()
-
-        return driver
+    def safe_cookies(self, driver):
+        print("Saving cookies...")
+        pickle_filename = "cookies.pkl"
+        pickle.dump(driver.get_cookies(), open(pickle_filename, "wb"))
 
     def get_proxy(self):
         prox = Proxy()
@@ -120,16 +129,16 @@ class AirlineWebScrapper(ABC):
             proxy_ip = proxy_data['IP Address']
             proxy_port = proxy_data['Port']
             proxy_country = proxy_data['Country']
+            prox.ip = proxy_ip
             prox.proxy_type = ProxyType.MANUAL
             prox.http_proxy = proxy_ip + ":" + proxy_port
-
             print("Trying to connect with proxy", proxy_ip, "from", proxy_country)
             proxy_handler = urllib.request.ProxyHandler({'https': proxy_ip + ":" + proxy_port})
             opener = urllib.request.build_opener(proxy_handler)
             opener.addheaders = [('User-agent', 'Mozilla/5.0')]
             urllib.request.install_opener(opener)
             req = urllib.request.Request('http://www.example.com')
-            sock = urllib.request.urlopen(req)
+            urllib.request.urlopen(req)
             print("Proxy seems to be working!")
         except Exception:
             print("Connection error! (Trying another proxy)")
