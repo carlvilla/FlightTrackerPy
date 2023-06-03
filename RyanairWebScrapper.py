@@ -27,14 +27,10 @@ class RyanairWebScrapper(AirlineWebScrapper):
             div_list_places[1].click()
         else:
             print("Destination not available")
-            self.close_scrapper()
             return False, None
-
         dates_set = self.set_dates(departing_date, returning_date)
         if not dates_set:
-            self.close_scrapper()
             return False, None
-
         # Search flights
         WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[normalize-space()="Buscar"]'))).click()
         departing_flights, returning_flights = self.retrieve_all_flights(from_city, to_city, departing_date,
@@ -43,7 +39,6 @@ class RyanairWebScrapper(AirlineWebScrapper):
         returning_flights = self.filter_flights_by_returning_hour(returning_flights)
         round_flight = self.find_cheapest_flights(departing_flights, returning_flights)
         print("Successful scrapping")
-        self.close_scrapper()
         return self.check_round_flights_under_max_price(round_flight), round_flight
 
     def set_dates(self, departing_date, returning_date, analysed_months=0, pending="departing"):
@@ -51,24 +46,11 @@ class RyanairWebScrapper(AirlineWebScrapper):
         max_num_months_to_analyse = self.num_weeks_to_analyse / 4
         if analysed_months > max_num_months_to_analyse:
             return False
-
         departing_date_ryaniar_format = datetime.strptime(departing_date, '%d/%m/%Y').strftime('%Y-%m-%d')
         returning_date_ryaniar_format = datetime.strptime(returning_date, '%d/%m/%Y').strftime('%Y-%m-%d')
         element_departing_date_to_select = "//div[@data-id='" + departing_date_ryaniar_format + "']"
         element_returning_date_to_select = "//div[@data-id='" + returning_date_ryaniar_format + "']"
-
-        # Check if elements are present. This is different from clickable
-
-        #flight_departing_date = WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, element_departing_date_to_select)))
-        #flight_returning_date = WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, element_returning_date_to_select)))
-
-        #flight_departing_date = WebDriverWait(self.driver, 1).until(
-        #    EC.presence_of_element_located((By.CSS_SELECTOR, element_departing_date_to_select)))
-        #flight_returning_date = WebDriverWait(self.driver, 1).until(
-        #    EC.presence_of_element_located((By.CSS_SELECTOR, element_returning_date_to_select)))
-
         time.sleep(1.2)
-
         try:
             if pending == "departing":
                 flight_departing_date = self.driver.find_element(by='xpath', value=element_departing_date_to_select)
@@ -77,25 +59,19 @@ class RyanairWebScrapper(AirlineWebScrapper):
                     print("Fechas no disponibles")
                     return False
                 flight_departing_date.click()
-
-
         except Exception:
             print("Dates could not be found in the displayed calendar")
-            WebDriverWait(self.driver, 1).until(EC.element_to_be_clickable((By.XPATH, '//div[@data-ref="calendar-btn-next-month"]'))).click()
+            WebDriverWait(self.driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//div[@data-ref="calendar-btn-next-month"]'))).click()
             analysed_months = analysed_months + 1
             return self.set_dates(departing_date, returning_date, analysed_months)
-
         time.sleep(1.2)
         try:
             flight_returning_date = self.driver.find_element(by='xpath', value=element_returning_date_to_select)
-
-        #if "calendar-body__cell--disabled" in flight_returning_date.get_attribute("class"):
         except Exception:
             print("Dates could not be found in the displayed calendar")
-            WebDriverWait(self.driver, 1).until(EC.element_to_be_clickable((By.XPATH, '//div[@data-ref="calendar-btn-next-month"]'))).click()
+            WebDriverWait(self.driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//div[@data-ref="calendar-btn-next-month"]'))).click()
             analysed_months = analysed_months + 1
             return self.set_dates(departing_date, returning_date, analysed_months, pending="returning")
-
         time.sleep(1.632)
         if "calendar-body__cell--disabled" in flight_returning_date.get_attribute("class"):
             print("Fechas no disponibles")
