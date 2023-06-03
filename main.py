@@ -11,13 +11,13 @@ from IberiaExpressWebScrapper import IberiaExpressWebScrapper
 from RyanairWebScrapper import RyanairWebScrapper
 from SkyscannerWebScrapper import SkyscannerWebScrapper
 
-max_price = 120
+max_price = 70
 from_city = "Madrid"
 min_departing_hour = "16:00"
 min_returning_hour = "18:00"
 email = "carlosvillablanco@gmail.com"
 email_sender = EmailSender(email)
-num_weeks_to_analyse = 30
+num_weeks_to_analyse = 80
 #destinations = ["Londres", "París", "Amsterdam", "Berlín", "Roma", "Praga", "Atenas", "Viena", "Dublín", "Leeds",
 #                "Lyon", "Bratislava", "Reykjavik", "Vilna", "Budapest", "Estocolmo", "Varsovia", "Copenhague",
 #                "Helsinki", "Bruselas", "Oslo", "Zurich", "Milán", "Múnich", "Estambul", "Skopje", "Frankfurt",
@@ -33,7 +33,13 @@ num_weeks_to_analyse = 30
         #        "Cairo", "Kaunas", "Gran canaria", "Palma"]
 
 # Destinations Ryanair
-destinations = ["Roma", "Fuerteventura", "Gran canaria", "Ibiza", "Lanzarote", "Menorca", "Palma", "Santiago","Tenerife", "Berlin", "Amman", "Cracovia", "Varsovia", "Viena", "Faro", "Bruselas", "Kaunas","Birminghan", "Bristol", "Edimburgo", "Liverpool", "Londres", "Manchester", "Burdeos", "Marsella","Paris", "Luxembourg", "Prague", "Sofia", "Malta", "Bucarest", "Budapest", "Agadir", "Essaouira","Fez", "Marrakech", "Nador", "Rabat", "Tanger", "Tetouan", "Dublin", "Billund", "Copenhague","Alghero", "Bari", "Bolonia", "Brindisi", "Cagliari", "Catania", "Milan", "Napoles", "Palermo","Pisa", "Turin", "Venecia", "Eindhoven"]
+destinations = ["Roma", "Fuerteventura", "Gran canaria", "Ibiza", "Lanzarote", "Menorca", "Palma", "Santiago","Tenerife"
+    , "Berlin", "Amman", "Cracovia", "Varsovia", "Viena", "Faro", "Bruselas", "Kaunas","Birminghan", "Bristol",
+                "Edimburgo", "Liverpool", "Londres", "Manchester", "Burdeos", "Marsella","Paris", "Luxembourg",
+                "Prague", "Sofia", "Malta", "Bucarest", "Budapest", "Agadir", "Essaouira","Fez", "Marrakech", "Nador",
+                "Rabat", "Tanger", "Tetouan", "Dublin", "Billund", "Copenhague","Alghero", "Bari", "Bolonia",
+                "Brindisi", "Cagliari", "Catania", "Milan", "Napoles", "Palermo","Pisa", "Turin", "Venecia",
+                "Eindhoven"]
 
 #websites_scrappers = ["RyanairWebScrapper", "IberiaExpressWebScrapper", "SkyscannerWebScrapper", "IberiaWebScrapper"]
 websites_scrappers = ["RyanairWebScrapper"]
@@ -67,8 +73,7 @@ def scrape_flights(weekend, to_city, num_weeks_to_analyse, proxies):
                 print("No interesting flights found")
         except Exception as e:
             print(traceback.format_exc())
-            web_scrapper.driver.quit()
-            #scrape_flights(weekend, to_city)
+        web_scrapper.close_scrapper()
 
 def get_next_friday():
     today = datetime.date.today()
@@ -83,9 +88,12 @@ def get_next_sunday():
 def get_next_weekends( num_weeks_to_analyse):
     weekends = []
     today = datetime.date.today()
-    friday = today + datetime.timedelta((3-today.weekday())%7+1)
+    # It it is currently a weekend, start with the following
+    if today.weekday() >= 4:
+        today = today + datetime.timedelta(3)
+    friday = today + datetime.timedelta((3 - today.weekday()) % 7 + 1)
     sunday = today + datetime.timedelta((5 - today.weekday()) % 7 + 1)
-    #weekends.append((friday.strftime('%d/%m/%Y'), sunday.strftime('%d/%m/%Y')))
+    weekends.append((friday.strftime('%d/%m/%Y'), sunday.strftime('%d/%m/%Y')))
     for idx_week in range(1, num_weeks_to_analyse):
         next_friday = friday + datetime.timedelta(7 * idx_week)
         next_sunday = sunday + datetime.timedelta(7 * idx_week)
