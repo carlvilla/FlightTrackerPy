@@ -3,7 +3,7 @@ import re
 
 from selenium.common import StaleElementReferenceException
 
-from AirlineWebScrapper import AirlineWebScrapper
+from web_scrappers.AirlineWebScrapper import AirlineWebScrapper
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 import time
@@ -88,7 +88,6 @@ class SkyscannerWebScrapper(AirlineWebScrapper):
         flights = self.filter_round_flights_by_hours(flights)
         cheapest_flight = self.find_cheapest_round_flight(flights)
         print("Successful scrapping")
-        self.close_scrapper()
         return self.check_round_flights_under_max_price(cheapest_flight), cheapest_flight
 
     def retrieve_all_flights(self, from_city, to_city, departing_date, returning_date):
@@ -116,7 +115,6 @@ class SkyscannerWebScrapper(AirlineWebScrapper):
     def was_bot_detected(self):
         try:
             WebDriverWait(self.driver, 3).until(EC.text_to_be_present_in_element((By.CLASS_NAME, "App_App__headline__MTE3M"), 'Are you a person or a robot?'))
-            self.close_scrapper()
             print("The bot seems to have been detected...")
             return True
         except Exception:
@@ -130,7 +128,7 @@ class SkyscannerWebScrapper(AirlineWebScrapper):
         The idea is to load cookies from a session in which the bot detection system was solved manually.
         '''
         print("Loading cookies...")
-        cookies = pickle.load(open("cookies/cookies_skyscanner.pkl", "rb"))
+        cookies = pickle.load(open("../cookies/cookies_skyscanner.pkl", "rb"))
         print(cookies)
         if len(cookies) > 0:
             for cookie in cookies:

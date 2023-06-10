@@ -1,4 +1,4 @@
-from AirlineWebScrapper import AirlineWebScrapper
+from web_scrappers.AirlineWebScrapper import AirlineWebScrapper
 import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -42,14 +42,11 @@ class IberiaWebScrapper(AirlineWebScrapper):
         returning_flights = self.filter_flights_by_returning_hour(returning_flights)
         round_flight = self.find_cheapest_flights(departing_flights, returning_flights)
         print("Successful scrapping")
-        self.close_scrapper()
-
         return self.check_round_flights_under_max_price(round_flight), round_flight
 
     def was_bot_detected(self):
         try:
             WebDriverWait(self.driver, 10).until(EC.text_to_be_present_in_element((By.CLASS_NAME, "ib-error-amadeus__title"), 'Lo sentimos,'))
-            self.close_scrapper()
             print("The bot seems to have been detected...")
             return True
         except Exception:
@@ -89,7 +86,6 @@ class IberiaWebScrapper(AirlineWebScrapper):
             duration = span_duration.get_text()
             flight = Flight(from_city, to_city, date, hour, duration, price)
             return flight
-
         except IndexError:
             print("Handling exception. Price not found for a flight.")
             return
