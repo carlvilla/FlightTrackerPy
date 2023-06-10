@@ -1,4 +1,4 @@
-from AirlineWebScrapper import AirlineWebScrapper
+from web_scrappers.AirlineWebScrapper import AirlineWebScrapper
 from selenium.webdriver.support import expected_conditions as EC
 import time
 from bs4 import BeautifulSoup
@@ -54,7 +54,7 @@ class RyanairWebScrapper(AirlineWebScrapper):
         try:
             if pending == "departing":
                 flight_departing_date = self.driver.find_element(by='xpath', value=element_departing_date_to_select)
-                time.sleep(1)
+                time.sleep(1.24)
                 if "calendar-body__cell--disabled" in flight_departing_date.get_attribute("class"):
                     print("Fechas no disponibles")
                     return False
@@ -64,7 +64,7 @@ class RyanairWebScrapper(AirlineWebScrapper):
             WebDriverWait(self.driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//div[@data-ref="calendar-btn-next-month"]'))).click()
             analysed_months = analysed_months + 1
             return self.set_dates(departing_date, returning_date, analysed_months)
-        time.sleep(1.2)
+        time.sleep(1.35)
         try:
             flight_returning_date = self.driver.find_element(by='xpath', value=element_returning_date_to_select)
         except Exception:
@@ -72,7 +72,7 @@ class RyanairWebScrapper(AirlineWebScrapper):
             WebDriverWait(self.driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//div[@data-ref="calendar-btn-next-month"]'))).click()
             analysed_months = analysed_months + 1
             return self.set_dates(departing_date, returning_date, analysed_months, pending="returning")
-        time.sleep(1.632)
+        time.sleep(1.332)
         if "calendar-body__cell--disabled" in flight_returning_date.get_attribute("class"):
             print("Fechas no disponibles")
             return False
@@ -81,7 +81,7 @@ class RyanairWebScrapper(AirlineWebScrapper):
 
     def retrieve_all_flights(self, from_city, to_city, departing_date, returning_date):
         print("Retrieving flights from ryanair.com...")
-        WebDriverWait(self.driver, 40).until(EC.presence_of_element_located((By.XPATH, '//button[normalize-space()="Seleccionar"]')))
+        WebDriverWait(self.driver, 35).until(EC.presence_of_element_located((By.XPATH, '//button[normalize-space()="Seleccionar"]')))
         time.sleep(5)
         flight_page_source = self.driver.page_source
         soup = BeautifulSoup(flight_page_source, 'lxml')
