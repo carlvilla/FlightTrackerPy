@@ -11,18 +11,11 @@ from web_scrappers.SkyscannerWebScrapper import SkyscannerWebScrapper
 from web_scrappers.RyanairWebScrapper import RyanairWebScrapper
 import json
 
-#websites_scrappers = ["RyanairWebScrapper", "IberiaExpressWebScrapper", "SkyscannerWebScrapper", "IberiaWebScrapper"]
-websites_scrappers = ["RyanairWebScrapper"]
 def main():
     settings = load_settings()
     # Retrieve user settings
-    max_price = settings["max_price"]
-    min_departing_hour = settings["min_departing_hour"]
-    min_returning_hour = settings["min_returning_hour"]
     num_weeks_to_analyse = settings["num_weeks_to_analyse"]
-    from_city = settings["from_city"]
     destinations = settings["destinations"]
-    email_sender = EmailSender(settings["email"])
     # Get dates next weekends
     weekends = get_next_weekends(num_weeks_to_analyse)
     while(True):
@@ -31,9 +24,9 @@ def main():
         print("Number of proxies found:", len(proxies))
         for weekend in weekends:
             for idx, to_city in enumerate(destinations):
-                print("Checking flights from " + from_city + " to " + to_city + " [" + weekend[0] + " to "
+                print("Checking flights from " + settings["from_city"] + " to " + to_city + " [" + weekend[0] + " to "
                       + weekend[1] + "] - Destination " + str(idx + 1) + "/" + str(len(destinations)))
-                scrape_flights(from_city, to_city, min_departing_hour, min_returning_hour, weekend, num_weeks_to_analyse, max_price, email_sender, proxies)
+                scrape_flights(to_city, weekend, settings, proxies)
         time.sleep(7200)
 
 # Function to load user settings
@@ -45,12 +38,13 @@ def load_settings(filepath='settings.json'):
         settings = {}  # Return an empty dict if the file does not exist
     return settings
 
-def scrape_flights(from_city, to_city, min_departing_hour, min_returning_hour, weekend, num_weeks_to_analyse, max_price, email_sender, proxies):
-    for websites_scrapper in websites_scrappers:
+def scrape_flights(to_city, weekend, settings, proxies):
+    email_sender = EmailSender(settings["email"])
+    for websites_scrapper in settings["websites_scrappers"]:
         ScrapperClass = getattr(importlib.import_module("__main__"), websites_scrapper)
-        web_scrapper = ScrapperClass(min_departing_hour, min_returning_hour, max_price, num_weeks_to_analyse, proxies)
+        web_scrapper = ScrapperClass(settings["min_departing_hour"], settings["min_returning_hour"], settings["max_price"], settings["num_weeks_to_analyse"], proxies)
         try:
-            is_flight_interesting, round_flight = web_scrapper.scrape(from_city, to_city, weekend[0], weekend[1])
+            is_flight_interesting, round_flight = web_scrapper.scrape(settings["from_city"], to_city, weekend[0], weekend[1])
             if is_flight_interesting:
                 print("An interesting flight was found!")
                 print(round_flight)
