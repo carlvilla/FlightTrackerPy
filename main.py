@@ -11,40 +11,6 @@ from web_scrappers.SkyscannerWebScrapper import SkyscannerWebScrapper
 from web_scrappers.RyanairWebScrapper import RyanairWebScrapper
 import json
 
-#destinations = ["Londres", "París", "Amsterdam", "Berlín", "Roma", "Praga", "Atenas", "Viena", "Dublín", "Leeds",
-#                "Lyon", "Bratislava", "Reykjavik", "Vilna", "Budapest", "Estocolmo", "Varsovia", "Copenhague",
-#                "Helsinki", "Bruselas", "Oslo", "Zurich", "Milán", "Múnich", "Estambul", "Skopje", "Frankfurt",
-#                "Bucarest", "Toulouse", "Belgrado", "Sofía", "Oporto", "Marrakech", "Fez", "Ginebra", "Funchal",
- #               "Venecia", "Niza", "Bolonia", "Marsella", "Zagreb", "Dubrovnik", "Dubai", "Birmingham", "Burdeos",
-  #              "Breslavia", "Stuttgart", "Bremen", "Bristol", "Catania", "Basilea", "Colonia", "Bastia", "Corfu",
-  #              "Córcega", "Cerdeña", "Cork", "Cracovia", "Doha", "Dortmund", "Dresden", "Dusseldorf", "Edimburgo",
-   #             "Eindhoven", "Faro", "Florencia", "Gdansk", "Glasgow", "Gotemburgo", "Hamburgo", "Hanóver", "Ibiza",
-    #            "Jersey", "La Palma", "Lanzarote", "Nantes", "La Valeta", "Liubliana", "Luxemburgo", "Málaga", "Pisa",
-     #           "Manchester", "Menorca", "Mikonos", "Nápoles", "Palma de Mallorca", "Turin", "Podgorica", "Reikiavik",
-      #          "Riga", "Rotterdam", "Santorini", "Sarajevo", "Split", "Tallin", "Tánger", "Tenerife", "Tirana",
-       #         "Turín", "Varna", "Verona", "Barcelona", "Casablanca", "Tunisia", "Tel Aviv", "Amman", "Beirut",
-        #        "Cairo", "Kaunas", "Gran canaria", "Palma"]
-
-# Destinations Ryanair
-# destinations = ["Roma", "Fuerteventura", "Gran canaria", "Ibiza", "Lanzarote", "Menorca", "Palma", "Santiago","Tenerife"
-#     , "Berlin", "Amman", "Cracovia", "Varsovia", "Viena", "Faro", "Bruselas", "Kaunas","Birminghan", "Bristol",
-#                 "Edimburgo", "Liverpool", "Londres", "Manchester", "Burdeos", "Marsella","Paris", "Luxembourg",
-#                 "Prague", "Sofia", "Malta", "Bucarest", "Budapest", "Agadir", "Essaouira","Fez", "Marrakech", "Nador",
-#                 "Rabat", "Tanger", "Tetouan", "Dublin", "Billund", "Copenhague","Alghero", "Bari", "Bolonia",
-#                 "Brindisi", "Cagliari", "Catania", "Milan", "Napoles", "Palermo","Pisa", "Turin", "Venecia",
-#                 "Eindhoven"]
-
-# Destinations Ryanair + Iberia Express
-#destinations = ["Lanzarote", "Málaga", "Fuerteventura", "Ibiza", "Gran Canaria", "Menorca", "Asturias", "Palma",
-#    "Santiago", "Santa Cruz de La Palma", "Sevilla", "Tenerife", "Vigo", "Berlin", "Dusseldorf",
-#    "Frankfurt", "Copenhague", "Burdeos", "Lyon", "Niza", "Nantes", "Paris", "Toulouse", "Edimburgo", "Londres",
-#    "Mánchester", "Atenas", "Corfú", "Creta", "Dublin", "Tel Aviv", "Reikiavik", "Bari", "Napoles", "Ámsterdam",
-#    "Oslo", "Estocolmo", "Roma", "Amman", "Cracovia", "Varsovia", "Viena", "Faro", "Bruselas", "Kaunas", "Birminghan",
-#    "Bristol", "Liverpool", "Luxembourg", "Prague", "Sofia", "Malta", "Bucarest", "Budapest", "Agadir", "Essaouira",
-#    "Fez", "Marrakech", "Nador", "Rabat", "Tanger", "Tetouan", "Billund", "Alghero", "Bolonia", "Brindisi",
-#    "Cagliari", "Catania", "Milan", "Palermo", "Pisa", "Turin", "Venecia", "Eindhoven", "Gran canaria", "Manchester",
-#              "Marsella"]
-
 #websites_scrappers = ["RyanairWebScrapper", "IberiaExpressWebScrapper", "SkyscannerWebScrapper", "IberiaWebScrapper"]
 websites_scrappers = ["RyanairWebScrapper"]
 def main():
