@@ -6,16 +6,17 @@ import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 
 from EmailSender import EmailSender
-from IberiaWebScrapper import IberiaWebScrapper
-from IberiaExpressWebScrapper import IberiaExpressWebScrapper
-from RyanairWebScrapper import RyanairWebScrapper
-from SkyscannerWebScrapper import SkyscannerWebScrapper
 
-max_price = 70
+from web_scrappers.IberiaWebScrapper import IberiaWebScrapper
+from web_scrappers.IberiaExpressWebScrapper import IberiaExpressWebScrapper
+#from web_scrappers.SkyscannerWebScrapper import SkyscannerWebScrapper
+from web_scrappers.RyanairWebScrapper import RyanairWebScrapper
+
+max_price = 90
 from_city = "Madrid"
-min_departing_hour = "16:00"
+min_departing_hour = "12:00"
 min_returning_hour = "18:00"
-email = "carlosvillablanco@gmail.com"
+email = "***REMOVED***"
 email_sender = EmailSender(email)
 num_weeks_to_analyse = 80
 #destinations = ["Londres", "París", "Amsterdam", "Berlín", "Roma", "Praga", "Atenas", "Viena", "Dublín", "Leeds",
@@ -40,6 +41,17 @@ destinations = ["Roma", "Fuerteventura", "Gran canaria", "Ibiza", "Lanzarote", "
                 "Rabat", "Tanger", "Tetouan", "Dublin", "Billund", "Copenhague","Alghero", "Bari", "Bolonia",
                 "Brindisi", "Cagliari", "Catania", "Milan", "Napoles", "Palermo","Pisa", "Turin", "Venecia",
                 "Eindhoven"]
+
+# Destinations Ryanair + Iberia Express
+#destinations = ["Lanzarote", "Málaga", "Fuerteventura", "Ibiza", "Gran Canaria", "Menorca", "Asturias", "Palma",
+#    "Santiago", "Santa Cruz de La Palma", "Sevilla", "Tenerife", "Vigo", "Berlin", "Dusseldorf",
+#    "Frankfurt", "Copenhague", "Burdeos", "Lyon", "Niza", "Nantes", "Paris", "Toulouse", "Edimburgo", "Londres",
+#    "Mánchester", "Atenas", "Corfú", "Creta", "Dublin", "Tel Aviv", "Reikiavik", "Bari", "Napoles", "Ámsterdam",
+#    "Oslo", "Estocolmo", "Roma", "Amman", "Cracovia", "Varsovia", "Viena", "Faro", "Bruselas", "Kaunas", "Birminghan",
+#    "Bristol", "Liverpool", "Luxembourg", "Prague", "Sofia", "Malta", "Bucarest", "Budapest", "Agadir", "Essaouira",
+#    "Fez", "Marrakech", "Nador", "Rabat", "Tanger", "Tetouan", "Billund", "Alghero", "Bolonia", "Brindisi",
+#    "Cagliari", "Catania", "Milan", "Palermo", "Pisa", "Turin", "Venecia", "Eindhoven", "Gran canaria", "Manchester",
+#              "Marsella"]
 
 #websites_scrappers = ["RyanairWebScrapper", "IberiaExpressWebScrapper", "SkyscannerWebScrapper", "IberiaWebScrapper"]
 websites_scrappers = ["RyanairWebScrapper"]
