@@ -4,21 +4,13 @@ import datetime
 import importlib
 import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
-
 from EmailSender import EmailSender
-
 from web_scrappers.IberiaWebScrapper import IberiaWebScrapper
 from web_scrappers.IberiaExpressWebScrapper import IberiaExpressWebScrapper
-#from web_scrappers.SkyscannerWebScrapper import SkyscannerWebScrapper
+from web_scrappers.SkyscannerWebScrapper import SkyscannerWebScrapper
 from web_scrappers.RyanairWebScrapper import RyanairWebScrapper
+import json
 
-max_price = 90
-from_city = "Madrid"
-min_departing_hour = "12:00"
-min_returning_hour = "18:00"
-email = "flighttrackerpy@gmail.com"
-email_sender = EmailSender(email)
-num_weeks_to_analyse = 80
 #destinations = ["Londres", "París", "Amsterdam", "Berlín", "Roma", "Praga", "Atenas", "Viena", "Dublín", "Leeds",
 #                "Lyon", "Bratislava", "Reykjavik", "Vilna", "Budapest", "Estocolmo", "Varsovia", "Copenhague",
 #                "Helsinki", "Bruselas", "Oslo", "Zurich", "Milán", "Múnich", "Estambul", "Skopje", "Frankfurt",
@@ -34,13 +26,13 @@ num_weeks_to_analyse = 80
         #        "Cairo", "Kaunas", "Gran canaria", "Palma"]
 
 # Destinations Ryanair
-destinations = ["Roma", "Fuerteventura", "Gran canaria", "Ibiza", "Lanzarote", "Menorca", "Palma", "Santiago","Tenerife"
-    , "Berlin", "Amman", "Cracovia", "Varsovia", "Viena", "Faro", "Bruselas", "Kaunas","Birminghan", "Bristol",
-                "Edimburgo", "Liverpool", "Londres", "Manchester", "Burdeos", "Marsella","Paris", "Luxembourg",
-                "Prague", "Sofia", "Malta", "Bucarest", "Budapest", "Agadir", "Essaouira","Fez", "Marrakech", "Nador",
-                "Rabat", "Tanger", "Tetouan", "Dublin", "Billund", "Copenhague","Alghero", "Bari", "Bolonia",
-                "Brindisi", "Cagliari", "Catania", "Milan", "Napoles", "Palermo","Pisa", "Turin", "Venecia",
-                "Eindhoven"]
+# destinations = ["Roma", "Fuerteventura", "Gran canaria", "Ibiza", "Lanzarote", "Menorca", "Palma", "Santiago","Tenerife"
+#     , "Berlin", "Amman", "Cracovia", "Varsovia", "Viena", "Faro", "Bruselas", "Kaunas","Birminghan", "Bristol",
+#                 "Edimburgo", "Liverpool", "Londres", "Manchester", "Burdeos", "Marsella","Paris", "Luxembourg",
+#                 "Prague", "Sofia", "Malta", "Bucarest", "Budapest", "Agadir", "Essaouira","Fez", "Marrakech", "Nador",
+#                 "Rabat", "Tanger", "Tetouan", "Dublin", "Billund", "Copenhague","Alghero", "Bari", "Bolonia",
+#                 "Brindisi", "Cagliari", "Catania", "Milan", "Napoles", "Palermo","Pisa", "Turin", "Venecia",
+#                 "Eindhoven"]
 
 # Destinations Ryanair + Iberia Express
 #destinations = ["Lanzarote", "Málaga", "Fuerteventura", "Ibiza", "Gran Canaria", "Menorca", "Asturias", "Palma",
@@ -56,6 +48,15 @@ destinations = ["Roma", "Fuerteventura", "Gran canaria", "Ibiza", "Lanzarote", "
 #websites_scrappers = ["RyanairWebScrapper", "IberiaExpressWebScrapper", "SkyscannerWebScrapper", "IberiaWebScrapper"]
 websites_scrappers = ["RyanairWebScrapper"]
 def main():
+    settings = load_settings()
+    # Retrieve user settings
+    max_price = settings["max_price"]
+    min_departing_hour = settings["min_departing_hour"]
+    min_returning_hour = settings["min_returning_hour"]
+    num_weeks_to_analyse = settings["num_weeks_to_analyse"]
+    from_city = settings["from_city"]
+    destinations = settings["destinations"]
+    email_sender = EmailSender(settings["email"])
     # Get dates next weekends
     weekends = get_next_weekends(num_weeks_to_analyse)
     while(True):
@@ -66,10 +67,19 @@ def main():
             for idx, to_city in enumerate(destinations):
                 print("Checking flights from " + from_city + " to " + to_city + " [" + weekend[0] + " to "
                       + weekend[1] + "] - Destination " + str(idx + 1) + "/" + str(len(destinations)))
-                scrape_flights(weekend, to_city, num_weeks_to_analyse, proxies)
+                scrape_flights(from_city, to_city, min_departing_hour, min_returning_hour, weekend, num_weeks_to_analyse, max_price, email_sender, proxies)
         time.sleep(7200)
 
-def scrape_flights(weekend, to_city, num_weeks_to_analyse, proxies):
+# Function to load user settings
+def load_settings(filepath='settings.json'):
+    try:
+        with open(filepath, 'r') as file:
+            settings = json.load(file)
+    except FileNotFoundError:
+        settings = {}  # Return an empty dict if the file does not exist
+    return settings
+
+def scrape_flights(from_city, to_city, min_departing_hour, min_returning_hour, weekend, num_weeks_to_analyse, max_price, email_sender, proxies):
     for websites_scrapper in websites_scrappers:
         ScrapperClass = getattr(importlib.import_module("__main__"), websites_scrapper)
         web_scrapper = ScrapperClass(min_departing_hour, min_returning_hour, max_price, num_weeks_to_analyse, proxies)
