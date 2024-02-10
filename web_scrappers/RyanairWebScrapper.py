@@ -17,11 +17,13 @@ class RyanairWebScrapper(AirlineWebScrapper):
 
     def scrape_airline(self, from_city, to_city, departing_date, returning_date):
         self.accept_cookies()
-        flight_origin = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//input[@id="input-button__departure"]')))
+        #flight_origin = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//input[@id="input-button__departure"]')))
         flight_destiny = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//input[@id="input-button__destination"]')))
-        time.sleep(0.5)
+        time.sleep(1)
+        flight_destiny.click()
+        time.sleep(1)
         flight_destiny.send_keys(to_city)
-        time.sleep(0.5)
+        time.sleep(1)
         div_list_places = self.driver.find_elements(by='xpath', value='//fsw-airport-item[@class="ng-star-inserted"]')
         if len(div_list_places) > 1:
             div_list_places[1].click()
@@ -107,4 +109,4 @@ class RyanairWebScrapper(AirlineWebScrapper):
         return departing_flights, returning_flights
 
     def accept_cookies(self):
-        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@class="cookie-popup-with-overlay__button"]'))).click()
+        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@data-ref="cookie.no-thanks"]'))).click()
