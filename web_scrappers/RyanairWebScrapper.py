@@ -17,8 +17,17 @@ class RyanairWebScrapper(AirlineWebScrapper):
 
     def scrape_airline(self, from_city, to_city, departing_date, returning_date):
         self.accept_cookies()
-        #flight_origin = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//input[@id="input-button__departure"]')))
+        flight_origin = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//input[@id="input-button__departure"]')))
         flight_destiny = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//input[@id="input-button__destination"]')))
+        
+        print("Test screenshot")
+        self.driver.get_screenshot_as_file("test.png")
+        
+        time.sleep(1)
+        flight_origin.click()
+        flight_origin.clear()
+        time.sleep(1)
+        flight_origin.send_keys(from_city)
         time.sleep(1)
         flight_destiny.click()
         time.sleep(1)

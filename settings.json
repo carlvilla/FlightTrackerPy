@@ -1,7 +1,7 @@
 {
-  "from_city": "Madrid",
-  "max_price": 90,
-  "min_departing_hour": "12:00",
+  "origins": ["Madrid", "Santander", "Asturias"],
+  "max_price": 690,
+  "min_departing_hour": "00:30",
   "min_returning_hour": "18:00",
   "num_weeks_to_analyse": 80,
   "email": "flighttrackerpy@gmail.com",
