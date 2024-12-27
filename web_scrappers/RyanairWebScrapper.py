@@ -13,7 +13,7 @@ from flights.Flight import Flight
 class RyanairWebScrapper(AirlineWebScrapper):
 
     def __init__(self, min_departing_hour, min_returning_hour, max_price, num_weeks_to_analyse, proxies):
-        self.URL = "https://www.ryanair.com/"
+        self.URL = "https://www.ryanair.com/es/es"
         super().__init__(self.URL, min_departing_hour, min_returning_hour, max_price, num_weeks_to_analyse, proxies)
 
     def scrape_airline(self, from_city, to_city, departing_date, returning_date):
