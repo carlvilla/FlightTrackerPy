@@ -15,9 +15,10 @@ def scrape_flights(from_city, to_city, weekend, settings, proxies):
                 print(round_flight)
                 email_sender.send_flight(round_flight)
             else:
-                # Check flight in next website
-                # Check next weekend
-                print("No interesting flights found")
+                if round_flight is not None:
+                    print(f"No interesting flights found. Cheapest: {round_flight.get_total_price():.2f}€")
+                else:
+                    print("No interesting flights found")
         except Exception as e:
             print(traceback.format_exc())
         web_scrapper.close_scrapper()
