@@ -4,6 +4,8 @@ import time
 from bs4 import BeautifulSoup
 from datetime import datetime
 import string
+import os
+from pathlib import Path
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from flights.Flight import Flight
@@ -19,8 +21,8 @@ class RyanairWebScrapper(AirlineWebScrapper):
         flight_origin = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//input[@id="input-button__departure"]')))
         flight_destiny = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//input[@id="input-button__destination"]')))
         
-        print("Test screenshot")
-        self.driver.get_screenshot_as_file("test.png")
+        #print("Test screenshot")
+        #self.driver.get_screenshot_as_file("test.png")
         
         time.sleep(1)
         flight_origin.click()
@@ -32,6 +34,12 @@ class RyanairWebScrapper(AirlineWebScrapper):
         time.sleep(1)
         flight_destiny.send_keys(to_city)
         time.sleep(1)
+        
+        # Save screenshot of the website after introducing the origin and destination
+        path_screenshots = "./screenshots"
+        Path(path_screenshots).mkdir(parents=True, exist_ok=True)
+        self.driver.get_screenshot_as_file(os.path.join(path_screenshots, f"{to_city}.png"))
+
         div_list_places = self.driver.find_elements(by='xpath', value='//fsw-airport-item[@class="ng-star-inserted"]')
         if len(div_list_places) > 1:
             div_list_places[1].click()
