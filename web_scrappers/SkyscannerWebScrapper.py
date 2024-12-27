@@ -1,7 +1,4 @@
 import pickle
-import re
-
-from selenium.common import StaleElementReferenceException
 
 from web_scrappers.AirlineWebScrapper import AirlineWebScrapper
 from selenium.webdriver.support import expected_conditions as EC
@@ -9,13 +6,12 @@ from selenium.webdriver.common.keys import Keys
 import time
 from bs4 import BeautifulSoup
 from datetime import datetime
-import string
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
-from Flight import Flight
-from RoundFlight import RoundFlight
+from flights.Flight import Flight
+from flights.RoundFlight import RoundFlight
 
 import calendar
 import locale
