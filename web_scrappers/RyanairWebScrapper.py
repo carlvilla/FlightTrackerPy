@@ -6,8 +6,7 @@ from datetime import datetime
 import string
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-from Flight import Flight
-import traceback
+from flights.Flight import Flight
 
 class RyanairWebScrapper(AirlineWebScrapper):
 

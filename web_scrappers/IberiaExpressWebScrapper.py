@@ -1,8 +1,6 @@
 import calendar
-import traceback
 from datetime import datetime
 
-from selenium.webdriver import ActionChains
 
 from web_scrappers.AirlineWebScrapper import AirlineWebScrapper
 import time
@@ -11,7 +9,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from bs4 import BeautifulSoup
-from Flight import Flight
+from flights.Flight import Flight
 import re
 
 class IberiaExpressWebScrapper(AirlineWebScrapper):
