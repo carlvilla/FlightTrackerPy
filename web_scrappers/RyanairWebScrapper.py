@@ -34,12 +34,6 @@ class RyanairWebScrapper(AirlineWebScrapper):
         time.sleep(1)
         flight_destiny.send_keys(to_city)
         time.sleep(1)
-        
-        # Save screenshot of the website after introducing the origin and destination
-        path_screenshots = "./screenshots"
-        Path(path_screenshots).mkdir(parents=True, exist_ok=True)
-        self.driver.get_screenshot_as_file(os.path.join(path_screenshots, f"{to_city}.png"))
-
         div_list_places = self.driver.find_elements(by='xpath', value='//fsw-airport-item[@class="ng-star-inserted"]')
         if len(div_list_places) > 1:
             div_list_places[1].click()
@@ -87,6 +81,9 @@ class RyanairWebScrapper(AirlineWebScrapper):
             flight_returning_date = self.driver.find_element(by='xpath', value=element_returning_date_to_select)
         except Exception:
             print("Dates could not be found in the displayed calendar")
+
+            self.save_screenshot(f"dates_not_found_{departing_date}_{returning_date}")
+
             WebDriverWait(self.driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//div[@data-ref="calendar-btn-next-month"]'))).click()
             analysed_months = analysed_months + 1
             return self.set_dates(departing_date, returning_date, analysed_months, pending="returning")
@@ -100,7 +97,7 @@ class RyanairWebScrapper(AirlineWebScrapper):
     def retrieve_all_flights(self, from_city, to_city, departing_date, returning_date):
         print("Retrieving flights from ryanair.com...")
         WebDriverWait(self.driver, 35).until(EC.presence_of_element_located((By.XPATH, '//button[normalize-space()="Seleccionar"]')))
-        time.sleep(5)
+        #time.sleep(5)
         flight_page_source = self.driver.page_source
         soup = BeautifulSoup(flight_page_source, 'lxml')
         flight_lists = soup.find_all('flight-list')

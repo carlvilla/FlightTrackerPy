@@ -2,6 +2,9 @@ from abc import (ABC, abstractmethod)
 from datetime import datetime
 from flights.RoundFlight import RoundFlight
 from driver.selenium_driver import setting_up_selenium
+from pathlib import Path
+from typing import Tuple
+import os
 
 class AirlineWebScrapper(ABC):
 
@@ -13,14 +16,23 @@ class AirlineWebScrapper(ABC):
         self.url = URL
         self.max_price = max_price
         self.num_weeks_to_analyse = num_weeks_to_analyse
+        # Create a folder to save screenshots for later analysis
+        self.path_screenshots = "./screenshots"
+        self.path_exception_screenshots = "./screenshots/exception"  # Path to save screenshots when an exception occurs
+        Path(self.path_exception_screenshots).mkdir(parents=True, exist_ok=True)
 
     def scrape(self, from_city="Madrid (MAD)", to_city="Nueva York (NYC)", departing_date="26/05/2023",
-               returning_date="28/05/2023"):
+               returning_date="28/05/2023") -> Tuple[bool, RoundFlight | None]:
         self.driver.get(self.url)
-        return self.scrape_airline(from_city, to_city, departing_date, returning_date)
+        try:
+            is_flight_interesting, round_flight = self.scrape_airline(from_city, to_city, departing_date, returning_date)
+        except Exception:
+            self.save_screenshot(f"{from_city}_{to_city}_{departing_date}_{returning_date}")
+            return False, None
+        return is_flight_interesting, round_flight
 
     @abstractmethod
-    def scrape_airline(self,from_city, to_city, departing_date, returning_date):
+    def scrape_airline(self,from_city, to_city, departing_date, returning_date) -> Tuple[bool, RoundFlight | None]:
         pass
 
     def close_scrapper(self):
@@ -44,12 +56,12 @@ class AirlineWebScrapper(ABC):
         return list(
             filter(lambda flight: flight.get_departing_hour() > self.min_returning_hour, flights_without_none_type))
 
-    def check_round_flights_under_max_price(self, round_flight):
+    def check_round_flights_under_max_price(self, round_flight) -> bool:
         if round_flight is not None:
             return round_flight.get_total_price() < self.max_price
         return False
 
-    def find_cheapest_flights(self, departing_flights, returning_flights):
+    def find_cheapest_flights(self, departing_flights, returning_flights) -> RoundFlight | None:
         if departing_flights is not None and len(departing_flights) > 0 and returning_flights is not None and len(returning_flights) > 0:
             cheapest_departing_flight = min(departing_flights, key=lambda flight: flight.get_price())
             cheapest_returning_flight = min(returning_flights, key=lambda flight: flight.get_price())
@@ -60,5 +72,9 @@ class AirlineWebScrapper(ABC):
         if round_flights is not None and len(round_flights) > 0:
             cheapest_flight = min(round_flights, key=lambda flight: flight.get_total_price())
             return cheapest_flight
+        
+    def save_screenshot(self, filename, exception=False):
+        path_save_screenshot = self.path_exception_screenshots if exception else self.path_screenshots
+        self.driver.get_screenshot_as_file(os.path.join(path_save_screenshot, f"{filename}.png"))
 
         
