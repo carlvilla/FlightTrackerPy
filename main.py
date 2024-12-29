@@ -6,7 +6,7 @@ from web_scrappers.IberiaExpressWebScrapper import IberiaExpressWebScrapper
 from web_scrappers.SkyscannerWebScrapper import SkyscannerWebScrapper
 from web_scrappers.RyanairWebScrapper import RyanairWebScrapper
 import json
-from flights.scraper import get_next_weekends, scrape_flights
+from web_scrappers.scraper import get_next_weekends, scrape_flights
 
 
 def main():
