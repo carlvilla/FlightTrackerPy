@@ -3,7 +3,7 @@ from datetime import datetime
 from flights.RoundFlight import RoundFlight
 from driver.selenium_driver import setting_up_selenium
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Optional
 import os
 
 class AirlineWebScrapper(ABC):
@@ -22,7 +22,7 @@ class AirlineWebScrapper(ABC):
         Path(self.path_exception_screenshots).mkdir(parents=True, exist_ok=True)
 
     def scrape(self, from_city="Madrid (MAD)", to_city="Nueva York (NYC)", departing_date="26/05/2023",
-               returning_date="28/05/2023") -> Tuple[bool, RoundFlight | None]:
+               returning_date="28/05/2023") -> Tuple[bool, Optional[RoundFlight]]:
         self.driver.get(self.url)
         try:
             is_flight_interesting, round_flight = self.scrape_airline(from_city, to_city, departing_date, returning_date)
@@ -32,7 +32,7 @@ class AirlineWebScrapper(ABC):
         return is_flight_interesting, round_flight
 
     @abstractmethod
-    def scrape_airline(self,from_city, to_city, departing_date, returning_date) -> Tuple[bool, RoundFlight | None]:
+    def scrape_airline(self,from_city, to_city, departing_date, returning_date) -> Tuple[bool, Optional[RoundFlight]]:
         pass
 
     def close_scrapper(self):
@@ -61,7 +61,7 @@ class AirlineWebScrapper(ABC):
             return round_flight.get_total_price() < self.max_price
         return False
 
-    def find_cheapest_flights(self, departing_flights, returning_flights) -> RoundFlight | None:
+    def find_cheapest_flights(self, departing_flights, returning_flights) -> Optional[RoundFlight]:
         if departing_flights is not None and len(departing_flights) > 0 and returning_flights is not None and len(returning_flights) > 0:
             cheapest_departing_flight = min(departing_flights, key=lambda flight: flight.get_price())
             cheapest_returning_flight = min(returning_flights, key=lambda flight: flight.get_price())
