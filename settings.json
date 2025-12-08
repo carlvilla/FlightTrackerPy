@@ -4,8 +4,8 @@
     "Santander",
     "Asturias"
   ],
-  "max_price": 100,
-  "min_departing_hour": "00:30",
+  "max_price": 200,
+  "min_departing_hour": "19:00",
   "min_returning_hour": "18:00",
   "num_weeks_to_analyse": 80,
   "email": "flighttrackerpy@gmail.com",

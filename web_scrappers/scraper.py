@@ -4,7 +4,7 @@ import importlib
 from emailsender.EmailSender import EmailSender
 
 def scrape_flights(from_city, to_city, weekend, settings, proxies):
-    email_sender = EmailSender(settings["email"])
+    email_sender = EmailSender()
     for websites_scrapper in settings["websites_scrappers"]:
         ScrapperClass = getattr(importlib.import_module("__main__"), websites_scrapper)
         web_scrapper = ScrapperClass(settings["min_departing_hour"], settings["min_returning_hour"], settings["max_price"], settings["num_weeks_to_analyse"], proxies)
@@ -38,7 +38,7 @@ def get_next_sunday():
     sunday = today + datetime.timedelta((5-today.weekday())%7+1)
     return sunday
 
-def get_next_weekends( num_weeks_to_analyse):
+def get_next_weekends(num_weeks_to_analyse):
     weekends = []
     today = datetime.date.today()
     # It it is currently a weekend, start with the following

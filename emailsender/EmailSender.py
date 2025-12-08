@@ -1,15 +1,18 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from dotenv import load_dotenv
+import os
 
 class EmailSender:
 
-    def __init__(self, receiver_email):
+    def __init__(self):
+        load_dotenv()
         self.smtp_server = "smtp.gmail.com"
         self.smtp_port = 587
-        self.sender_email = "flighttrackerpy@gmail.com"
-        self.password = "ewca xqhg qrhi fydj"
-        self.receiver_email = receiver_email
+        self.sender_email = os.getenv("SENDER_EMAIL_ADDRESS")
+        self.password = os.getenv("SENDER_EMAIL_PASSWORD")
+        self.receiver_email = os.getenv("RECEIVER_EMAIL_ADDRESS")
 
     def send_flight(self, round_flight):
         # Create a multipart message
