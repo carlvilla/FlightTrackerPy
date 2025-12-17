@@ -5,15 +5,18 @@ from selenium import webdriver
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.webdriver import WebDriver
 
-def setting_up_selenium():
+def setting_up_selenium(show_browser:bool) -> WebDriver:
     try:
         print("Setting up Selenium driver...")
         
         agents = 'Mozilla/5.0 (Windows NT 4.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36'
 
         options = webdriver.ChromeOptions()
-        options.add_argument("--headless=new")            
+        
+        if not show_browser:
+            options.add_argument("--headless=new")            
         options.add_argument("--window-size=1920,1080")
         options.add_argument("--disable-extensions")
         options.add_argument('--disable-gpu')
@@ -24,10 +27,12 @@ def setting_up_selenium():
         driver_path = ChromeDriverManager().install()
         driver = webdriver.Chrome(options=options, service=ChromeService(driver_path))
 
+        assert driver is not None
+
         return driver
     except Exception as e:
         print(e)
-        print("An error occurred while setting the Selenium driver...")
+        raise Exception("An error occurred while setting the Selenium driver...")
         #subprocess.call(['osascript', '-e', 'tell application "Tor Browser" to quit'])
         #return self.setting_up_selenium()
 
@@ -36,15 +41,13 @@ def safe_cookies(driver):
     pickle_filename = "cookies.pkl"
     pickle.dump(driver.get_cookies(), open(pickle_filename, "wb"))
 
-def get_proxy():
+def get_proxy(proxies):
     prox = Proxy()
     try:
         # Select a random proxy
-        idx_proxy = random.randint(0, len(self.proxies))
-        proxy_data = self.proxies[idx_proxy]
-
+        idx_proxy = random.randint(0, len(proxies))
+        proxy_data = proxies[idx_proxy]
         print(proxy_data)
-
         proxy_ip = proxy_data['IP Address']
         proxy_port = proxy_data['Port']
         proxy_country = proxy_data['Country']
@@ -61,5 +64,5 @@ def get_proxy():
         print("Proxy seems to be working!")
     except Exception:
         print("Connection error! (Trying another proxy)")
-        return self.get_proxy()
+        # return get_proxy(proxies)
     return prox

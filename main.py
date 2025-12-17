@@ -1,32 +1,40 @@
 import time
 import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
-from web_scrappers.IberiaWebScrapper import IberiaWebScrapper
-from web_scrappers.IberiaExpressWebScrapper import IberiaExpressWebScrapper
-from web_scrappers.SkyscannerWebScrapper import SkyscannerWebScrapper
-from web_scrappers.RyanairWebScrapper import RyanairWebScrapper
 import json
-from web_scrappers.scraper import get_next_weekends, scrape_flights
+from web_scrappers.scraper import Scraper, get_next_weekends
+import logging.config
 
+logger = logging.getLogger("root")
 
 def main():
-    settings = load_settings()
+
+    # Configure logging
+    logging.config.fileConfig('logging.conf', disable_existing_loggers=True, encoding=None)
+    
     # Retrieve user settings
+    settings = load_settings()
     num_weeks_to_analyse = settings["num_weeks_to_analyse"]
     origins = settings["origins"]
     destinations = settings["destinations"]
+    
+    # Get proxies
+    proxies = []
+    #proxies = get_free_proxies()
+    logger.debug("Number of proxies found:", len(proxies))
+    
+    # Create scraper instance
+    scrapper = Scraper(settings, proxies)
+
     # Get dates next weekends
     weekends = get_next_weekends(num_weeks_to_analyse)
     while(True):
-        proxies = []
-        #proxies = get_free_proxies()
-        print("Number of proxies found:", len(proxies))
         for weekend in weekends:
             for from_city in origins:
                 for idx, to_city in enumerate(destinations):
-                    print("Checking flights from " + from_city + " to " + to_city + " [" + weekend[0] + " to "
+                    logger.info("Checking flights from " + from_city + " to " + to_city + " [" + weekend[0] + " to "
                         + weekend[1] + "] - Destination " + str(idx + 1) + "/" + str(len(destinations)))
-                    scrape_flights(from_city, to_city, weekend, settings, proxies)
+                    scrapper.scrape_flights(from_city, to_city, weekend)
         time.sleep(7200)
 
 # Function to load user settings
@@ -39,7 +47,7 @@ def load_settings(filepath='settings.json'):
     return settings
 
 def get_free_proxies():
-    print("Retrieving proxies...")
+    logger.trace("Retrieving proxies...")
     driver = uc.Chrome()
     driver.get('https://sslproxies.org')
     table = driver.find_element(By.TAG_NAME, 'table')

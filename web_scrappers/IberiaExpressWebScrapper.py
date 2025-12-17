@@ -14,9 +14,10 @@ import re
 
 class IberiaExpressWebScrapper(AirlineWebScrapper):
 
-    def __init__(self, min_departing_hour, min_returning_hour, max_price, num_weeks_to_analyse, proxies):
+    def __init__(self, proxies, **kwargs):
+        print("Setting up Iberia Express web scrapper...")
         self.URL = "https://www.iberiaexpress.com/es"
-        super().__init__(self.URL, min_departing_hour, min_returning_hour, max_price, num_weeks_to_analyse, proxies)
+        super().__init__(self.URL, proxies, min_departing_hour=kwargs["min_departing_hour"], min_returning_hour=kwargs["min_returning_hour"], max_price=kwargs["max_price"], num_weeks_to_analyse=kwargs["num_weeks_to_analyse"], show_browser=kwargs.get("show_browser", False))
 
     def scrape_airline(self, from_city, to_city, departing_date, returning_date):
         # Wait on the webpage before trying anything
@@ -139,6 +140,5 @@ class IberiaExpressWebScrapper(AirlineWebScrapper):
             print("Handling exception. Price not found for a flight.")
             return
 
-    def accept_cookies(self):
-        WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, '//button[normalize-space()="Aceptar"]'))).click()
+    def _get_cookies_accept_button_xpath(self) -> str:
+        return '//button[normalize-space()="Aceptar"]'

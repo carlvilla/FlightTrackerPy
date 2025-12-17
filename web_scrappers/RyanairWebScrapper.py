@@ -4,20 +4,23 @@ import time
 from bs4 import BeautifulSoup
 from datetime import datetime
 import string
-import os
-from pathlib import Path
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from flights.Flight import Flight
+import logging
+logger = logging.getLogger("root")
 
 class RyanairWebScrapper(AirlineWebScrapper):
 
-    def __init__(self, min_departing_hour, min_returning_hour, max_price, num_weeks_to_analyse, proxies):
+    def __init__(self, proxies, **kwargs):
+        logger.info("Setting up Ryanair web scrapper...")
         self.URL = "https://www.ryanair.com/es/es"
-        super().__init__(self.URL, min_departing_hour, min_returning_hour, max_price, num_weeks_to_analyse, proxies)
+        super().__init__(self.URL, proxies, min_departing_hour=kwargs["min_departing_hour"], min_returning_hour=kwargs["min_returning_hour"], max_price=kwargs["max_price"], num_weeks_to_analyse=kwargs["num_weeks_to_analyse"], show_browser=kwargs.get("show_browser", False))
 
     def scrape_airline(self, from_city, to_city, departing_date, returning_date):
         self.accept_cookies()
+        self.close_subscriptions_popup()
+
         flight_origin = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//input[@id="input-button__departure"]')))
         flight_destiny = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//input[@id="input-button__destination"]')))
         
@@ -38,19 +41,24 @@ class RyanairWebScrapper(AirlineWebScrapper):
         if len(div_list_places) > 1:
             div_list_places[1].click()
         else:
-            print("Destination not available")
+            logger.info("Destination not available")
             return False, None
         dates_set = self.set_dates(departing_date, returning_date)
         if not dates_set:
             return False, None
         # Search flights
-        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[normalize-space()="Buscar"]'))).click()
+        try:
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[normalize-space()="Buscar"]'))).click()
+        except Exception as e:
+            logger.debug("Could not click on search button:", e)
+            return False, None
+
         departing_flights, returning_flights = self.retrieve_all_flights(from_city, to_city, departing_date,
                                                                          returning_date)
         departing_flights = self.filter_flights_by_departing_hour(departing_flights)
         returning_flights = self.filter_flights_by_returning_hour(returning_flights)
         round_flight = self.find_cheapest_flights(departing_flights, returning_flights)
-        print("Successful scrapping")
+        logger.info("Successful scrapping")
         return self.check_round_flights_under_max_price(round_flight), round_flight
 
     def set_dates(self, departing_date, returning_date, analysed_months=0, pending="departing"):
@@ -68,11 +76,11 @@ class RyanairWebScrapper(AirlineWebScrapper):
                 flight_departing_date = self.driver.find_element(by='xpath', value=element_departing_date_to_select)
                 time.sleep(1.24)
                 if "calendar-body__cell--disabled" in flight_departing_date.get_attribute("class"):
-                    print("Fechas no disponibles")
+                    logger.info("Fechas no disponibles")
                     return False
                 flight_departing_date.click()
         except Exception:
-            print("Dates could not be found in the displayed calendar")
+            logger.info("Dates could not be found in the displayed calendar")
             WebDriverWait(self.driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//div[@data-ref="calendar-btn-next-month"]'))).click()
             analysed_months = analysed_months + 1
             return self.set_dates(departing_date, returning_date, analysed_months)
@@ -80,7 +88,7 @@ class RyanairWebScrapper(AirlineWebScrapper):
         try:
             flight_returning_date = self.driver.find_element(by='xpath', value=element_returning_date_to_select)
         except Exception:
-            print("Dates could not be found in the displayed calendar")
+            logger.info("Dates could not be found in the displayed calendar")
 
             self.save_screenshot(f"dates_not_found_{departing_date}_{returning_date}")
 
@@ -89,13 +97,13 @@ class RyanairWebScrapper(AirlineWebScrapper):
             return self.set_dates(departing_date, returning_date, analysed_months, pending="returning")
         time.sleep(1.332)
         if "calendar-body__cell--disabled" in flight_returning_date.get_attribute("class"):
-            print("Fechas no disponibles")
+            logger.info("Dates not available")
             return False
         flight_returning_date.click()
         return True
 
     def retrieve_all_flights(self, from_city, to_city, departing_date, returning_date):
-        print("Retrieving flights from ryanair.com...")
+        logger.info("Retrieving flights from ryanair.com...")
         WebDriverWait(self.driver, 35).until(EC.presence_of_element_located((By.XPATH, '//button[normalize-space()="Seleccionar"]')))
         #time.sleep(5)
         flight_page_source = self.driver.page_source
@@ -121,5 +129,13 @@ class RyanairWebScrapper(AirlineWebScrapper):
             returning_flights.append(flight)
         return departing_flights, returning_flights
 
-    def accept_cookies(self):
-        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@data-ref="cookie.no-thanks"]'))).click()
+    def close_subscriptions_popup(self):
+        try:
+            logger.debug("Checking for subscriptions popup...")
+            WebDriverWait(self.driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[@class="subscriber-widget__mail-wrapper"]'))).click()
+            logger.debug("Subscriptions popup closed")
+        except Exception:
+            logger.debug("No subscriptions popup found")
+
+    def _get_cookies_accept_button_xpath(self) -> str:
+        return '//*[@data-ref="cookie.no-thanks"]'

@@ -19,9 +19,9 @@ locale.setlocale(locale.LC_TIME, "es_ES")
 
 class SkyscannerWebScrapper(AirlineWebScrapper):
 
-    def __init__(self, min_departing_hour, min_returning_hour, max_price, proxies):
+    def __init__(self, proxies, **kwargs):
         self.URL = "https://www.skyscanner.es"
-        super().__init__(self.URL, min_departing_hour, min_returning_hour, max_price, proxies)
+        super().__init__(self.URL, proxies, min_departing_hour=kwargs["min_departing_hour"], min_returning_hour=kwargs["min_returning_hour"], max_price=kwargs["max_price"], num_weeks_to_analyse=kwargs["num_weeks_to_analyse"], show_browser=kwargs.get("show_browser", False))
 
     def scrape_airline(self, from_city, to_city, departing_date, returning_date):
         self.load_cookies(self.driver)
@@ -116,8 +116,8 @@ class SkyscannerWebScrapper(AirlineWebScrapper):
         except Exception:
             return False
 
-    def accept_cookies(self):
-        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[normalize-space()="Aceptar"]'))).click()
+    def _get_cookies_accept_button_xpath(self) -> str:
+        return '//button[normalize-space()="Aceptar"]'
 
     def load_cookies(self, driver):
         '''

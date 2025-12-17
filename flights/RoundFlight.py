@@ -1,12 +1,16 @@
+from flights.Flight import Flight
+from typing import Optional
+
 class RoundFlight:
 
-    def __init__(self, departing_flight, returning_flight, website_found, price=None):
+    def __init__(self, departing_flight: Flight, returning_flight: Flight, website_found: str, price: Optional[float] =None):
         self.departing_flight = departing_flight
         self.returning_flight = returning_flight
         if price is not None:
-            self.price = self.remove_euro(price)
+            self.price: float = self.remove_euro(price)
         else:
-            self.price = self.departing_flight.get_price() + self.returning_flight.get_price()
+            self.price: float = self.departing_flight.get_price() + self.returning_flight.get_price()
+        self.price = round(self.price, 2)
         self.website_found = website_found
 
     def get_departing_hour(self):

@@ -2,13 +2,13 @@ from datetime import datetime
 
 class Flight:
 
-    def __init__(self, from_city, to_city, departing_date, departing_hour, departing_duration, price):
+    def __init__(self, from_city: str, to_city: str, departing_date:str, departing_hour:str, departing_duration:str, price: str):
         self.from_city = from_city
         self.to_city = to_city
         self.departing_date = departing_date
         self.departing_hour = datetime.strptime(departing_hour, '%H:%M').time()
         self.departing_duration = departing_duration
-        self.price = self.remove_euro(price)
+        self.price: float = self.remove_euro(price)
 
     def get_departing_hour(self):
         return self.departing_hour

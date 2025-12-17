@@ -5,17 +5,21 @@ from driver.selenium_driver import setting_up_selenium
 from pathlib import Path
 from typing import Tuple, Optional
 import os
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 
 class AirlineWebScrapper(ABC):
 
-    def __init__(self, URL, min_departing_hour, min_returning_hour, max_price, num_weeks_to_analyse, proxies):
+    def __init__(self, URL, proxies, min_departing_hour, min_returning_hour, max_price, num_weeks_to_analyse, show_browser=False):
         self.proxies = proxies
-        self.driver = setting_up_selenium()
+        self.driver = setting_up_selenium(show_browser)
         self.min_departing_hour = datetime.strptime(min_departing_hour, '%H:%M').time()
         self.min_returning_hour = datetime.strptime(min_returning_hour, '%H:%M').time()
         self.url = URL
         self.max_price = max_price
         self.num_weeks_to_analyse = num_weeks_to_analyse
+        self.were_cookies_accepted = False
         # Create a folder to save screenshots for later analysis
         self.path_screenshots = "./screenshots"
         self.path_exception_screenshots = "./screenshots/exception"  # Path to save screenshots when an exception occurs
@@ -77,4 +81,11 @@ class AirlineWebScrapper(ABC):
         path_save_screenshot = self.path_exception_screenshots if exception else self.path_screenshots
         self.driver.get_screenshot_as_file(os.path.join(path_save_screenshot, f"{filename}.png"))
 
-        
+
+    def accept_cookies(self):
+        if not self.were_cookies_accepted:
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@data-ref="cookie.no-thanks"]'))).click()
+            self.were_cookies_accepted = True
+    
+    def _get_cookies_accept_button_xpath(self):
+        raise NotImplementedError("Subclasses must implement this method")
