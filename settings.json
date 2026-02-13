@@ -4,26 +4,22 @@
     "Santander",
     "Asturias"
   ],
-  "max_price": 200,
+  "max_price": 70,
   "min_departing_hour": "18:00",
   "min_returning_hour": "18:00",
   "num_weeks_to_analyse": 80,
   "filter_repeated_destinations_but_more_expensive": true,
   "destinations": [
-    "Roma",
     "Fuerteventura",
     "Gran canaria",
     "Ibiza",
     "Lanzarote",
     "Menorca",
-    "Palma",
     "Santiago",
-    "Tenerife",
     "Berlin",
     "Amman",
     "Cracovia",
     "Varsovia",
-    "Viena",
     "Faro",
     "Bruselas",
     "Kaunas",
@@ -66,12 +62,10 @@
     "Turin",
     "Venecia",
     "Eindhoven",
-    "Alicante",
-    "Malaga",
     "Valencia"
   ],
   "websites_scrappers": [
     "RyanairWebScrapper"
   ],
-  "show_browser": true
+  "show_browser": false
 }
