@@ -2,17 +2,21 @@
   "origins": [
     "Madrid",
     "Santander",
-    "Asturias"
+    "Asturias",
+    "Barcelona"
   ],
-  "max_price": 70,
-  "min_departing_hour": "18:00",
-  "min_returning_hour": "18:00",
+  "max_price": 80,
+  "min_departing_hour": "17:30",
+  "min_returning_hour": "17:30",
   "num_weeks_to_analyse": 80,
   "filter_repeated_destinations_but_more_expensive": true,
+  "cookies_dir": "cookies/",
   "destinations": [
+    "Londres",
+    "Oporto",
+    "Ibiza",
     "Fuerteventura",
     "Gran canaria",
-    "Ibiza",
     "Lanzarote",
     "Menorca",
     "Santiago",
@@ -27,8 +31,8 @@
     "Bristol",
     "Edimburgo",
     "Liverpool",
-    "Londres",
     "Manchester",
+    "Asturias",
     "Burdeos",
     "Marsella",
     "Paris",
@@ -65,7 +69,8 @@
     "Valencia"
   ],
   "websites_scrappers": [
-    "RyanairWebScrapper"
+    "RyanairWebScrapper",
+    "VuelingWebScrapper"
   ],
   "show_browser": false
 }

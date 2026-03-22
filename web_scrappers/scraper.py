@@ -5,7 +5,6 @@ import traceback
 
 from emailsender.EmailSender import EmailSender
 from flights.InterestingFlightCache import InterestingFlightCache
-from web_scrappers.RyanairWebScrapper import RyanairWebScrapper
 
 logger = logging.getLogger("root")
 
@@ -18,17 +17,23 @@ class Scraper:
         )
         self.web_scrappers = []
 
-        for websites_scrapper in settings["websites_scrappers"]:
-            ScrapperClass = getattr(
-                importlib.import_module(__name__), websites_scrapper
-            )
-            web_scrapper = ScrapperClass(proxies, **settings)
-            self.web_scrappers.append(web_scrapper)
+        for scrapper_name in settings["websites_scrappers"]:
+            try:
+                module = importlib.import_module(f"web_scrappers.{scrapper_name}")
+                ScrapperClass = getattr(module, scrapper_name)
+                web_scrapper = ScrapperClass(proxies, **settings)
+                self.web_scrappers.append(web_scrapper)
+                logger.info("Loaded scraper: %s", scrapper_name)
+            except (ImportError, AttributeError) as exc:
+                logger.error(
+                    "Could not load scraper '%s' — check that 'web_scrappers/%s.py' exists "
+                    "and defines a class named '%s'. Error: %s",
+                    scrapper_name, scrapper_name, scrapper_name, exc,
+                )
 
     def scrape_flights(self, from_city, to_city, weekend):
         try:
             for web_scrapper in self.web_scrappers:
-                # Retrieve information about the desired flight and weekend
                 is_flight_interesting, round_flight = web_scrapper.scrape(
                     from_city, to_city, weekend[0], weekend[1]
                 )
@@ -37,10 +42,7 @@ class Scraper:
                     logger.info("An interesting flight was found!")
                     logger.info(round_flight)
 
-                    # Check if a cheaper flight was already reported
-                    is_cheaper_than_before = self.interesting_flight_cache.save_flight(
-                        round_flight
-                    )
+                    is_cheaper_than_before = self.interesting_flight_cache.save_flight(round_flight)
                     if not is_cheaper_than_before:
                         logger.info(
                             "The flight is not cheaper than a previously found option. Skipping notification"
@@ -56,7 +58,6 @@ class Scraper:
                         logger.info("No interesting flights found")
         except Exception:
             logger.error(traceback.format_exc())
-        # web_scrapper.close_scrapper()
 
 
 def get_next_friday():
@@ -80,7 +81,6 @@ def get_next_sunday():
 def get_next_weekends(num_weeks_to_analyse):
     weekends = []
     today = datetime.date.today()
-    # It it is currently a weekend, start with the following
     if today.weekday() >= 4:
         today = today + datetime.timedelta(3)
     first_day = get_next_friday()
